@@ -1,0 +1,36 @@
+---
+import '@/styles/global.css';
+import SEO, { type Props as SEOProps } from '@/components/seo/SEO.astro';
+// Preload the two faces used above the fold so the hero headline and body
+// render in brand type on first paint (same hashed files the CSS points to).
+import frauncesUrl from '@fontsource-variable/fraunces/files/fraunces-latin-full-normal.woff2?url';
+import alegreyaLightUrl from '@fontsource/alegreya-sans/files/alegreya-sans-latin-300-normal.woff2?url';
+import alegreyaMediumUrl from '@fontsource/alegreya-sans/files/alegreya-sans-latin-500-normal.woff2?url';
+
+interface Props extends SEOProps {
+  bodyClass?: string;
+}
+
+const { bodyClass, ...seo } = Astro.props;
+---
+
+<!doctype html>
+<html lang="en-GB">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <link rel="preload" href={frauncesUrl} as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href={alegreyaLightUrl} as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href={alegreyaMediumUrl} as="font" type="font/woff2" crossorigin />
+    <SEO {...seo} />
+    <slot name="head" />
+  </head>
+  <body class={bodyClass}>
+    <a
+      href="#main"
+      class="sr-only-focusable fixed top-3 left-3 z-50 rounded-(--radius-button) bg-off-white px-4 py-3 text-label font-medium text-driftwood"
+      >Skip to content</a
+    >
+    <slot />
+  </body>
+</html>

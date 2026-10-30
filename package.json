@@ -1,0 +1,42 @@
+{
+  "name": "sea-air-club",
+  "type": "module",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Sea Air Club website: holding page now, full site with ResNexus booking next.",
+  "engines": {
+    "node": ">=22.22.0"
+  },
+  "packageManager": "pnpm@10.28.0",
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "check": "astro check",
+    "test": "vitest run",
+    "test:e2e": "playwright test",
+    "format": "prettier --write ."
+  },
+  "dependencies": {
+    "@astrojs/sitemap": "^3.7.4",
+    "@astrojs/vercel": "^11.0.17",
+    "@fontsource-variable/fraunces": "^5.3.0",
+    "@fontsource/alegreya-sans": "^5.3.0",
+    "@tailwindcss/vite": "^4.3.3",
+    "@vercel/analytics": "^2.0.1",
+    "@vercel/blob": "^2.8.2",
+    "astro": "7.4.1",
+    "qrcode": "^1.5.4",
+    "tailwindcss": "^4.3.3"
+  },
+  "devDependencies": {
+    "@astrojs/check": "^0.9.12",
+    "@playwright/test": "1.56.0",
+    "@types/node": "^22.20.5",
+    "@types/qrcode": "^1.5.6",
+    "prettier": "^3.9.10",
+    "prettier-plugin-astro": "^1.1.2",
+    "typescript": "^6.0.3",
+    "vitest": "^5.0.5"
+  }
+}

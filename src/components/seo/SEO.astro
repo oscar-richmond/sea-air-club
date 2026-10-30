@@ -1,0 +1,25 @@
+---
+/**
+ * Page <head> metadata. PLACEHOLDER: owned by the feat/seo branch, which replaces
+ * this with the full version (Open Graph, Twitter, JSON-LD, favicons, noindex on previews).
+ * Keep the Props interface stable: BaseLayout passes exactly these.
+ */
+import { site } from '@/config/site';
+
+export interface Props {
+  title?: string;
+  description?: string;
+  /** Absolute or root-relative path to a 1200×630 sharing image. */
+  image?: string;
+  noindex?: boolean;
+}
+
+const { title, description = site.seo.description, noindex = false } = Astro.props;
+const fullTitle = title ? site.seo.titleTemplate.replace('%s', title) : site.seo.defaultTitle;
+const canonical = new URL(Astro.url.pathname, site.url).href;
+---
+
+<title>{fullTitle}</title>
+<meta name="description" content={description} />
+<link rel="canonical" href={canonical} />
+{noindex && <meta name="robots" content="noindex, nofollow" />}

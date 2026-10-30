@@ -1,0 +1,75 @@
+---
+/**
+ * Button · Primary and Button · Outline from the Figma components.
+ * Buttons hug their label (padding + text style), so changing the type tokens
+ * resizes every button.
+ *
+ * `opensSignup` renders a link to /join that the sign-up script upgrades to open the
+ * pop-up. Without JavaScript it simply goes to the standalone /join page.
+ */
+import type { HTMLAttributes } from 'astro/types';
+
+type Variant = 'primary' | 'outline';
+
+interface Props extends Omit<HTMLAttributes<'a'>, 'class'> {
+  variant?: Variant;
+  href?: string;
+  type?: 'button' | 'submit' | 'reset';
+  opensSignup?: boolean;
+  /** Soft glow used on the hero button over the photo. */
+  glow?: boolean;
+  /** Stretch to the container width (used in the mobile sheet). */
+  block?: boolean;
+  class?: string;
+}
+
+const {
+  variant = 'primary',
+  href,
+  type = 'button',
+  opensSignup = false,
+  glow = false,
+  block = false,
+  class: className,
+  ...rest
+} = Astro.props;
+
+const base =
+  'inline-flex items-center justify-center whitespace-nowrap rounded-(--radius-button) font-sans font-medium transition-[background-color,color,border-color,transform] duration-200 ease-out-soft active:translate-y-px disabled:cursor-not-allowed disabled:opacity-70';
+
+const variants: Record<Variant, string> = {
+  primary: 'bg-buoy text-off-white text-button px-8 py-[17px] hover:bg-buoy-deep',
+  outline:
+    'border border-off-white text-off-white text-button-s px-5 py-[11px] hover:bg-off-white hover:text-driftwood',
+};
+
+const classes = [
+  base,
+  variants[variant],
+  glow && 'shadow-hero-button',
+  block && 'w-full',
+  className,
+]
+  .filter(Boolean)
+  .join(' ');
+
+const linkHref = opensSignup ? (href ?? '/join') : href;
+---
+
+{
+  linkHref ? (
+    <a
+      href={linkHref}
+      class={classes}
+      data-signup-open={opensSignup ? '' : undefined}
+      aria-haspopup={opensSignup ? 'dialog' : undefined}
+      {...rest}
+    >
+      <slot />
+    </a>
+  ) : (
+    <button type={type} class={classes} {...(rest as HTMLAttributes<'button'>)}>
+      <slot />
+    </button>
+  )
+}
