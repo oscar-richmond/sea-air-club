@@ -19,7 +19,7 @@ test.describe('early access pop-up', () => {
     await page.goto('/');
     const triggers = page.locator('a[data-signup-open]');
     const count = await triggers.count();
-    expect(count).toBeGreaterThanOrEqual(4);
+    expect(count).toBeGreaterThanOrEqual(3); // hero, intro, early access
     for (let i = 0; i < count; i++) {
       await triggers.nth(i).scrollIntoViewIfNeeded();
       await triggers.nth(i).click();
@@ -60,7 +60,7 @@ test.describe('early access pop-up', () => {
     const email = testEmail('repeat');
     await page.goto('/');
     for (let i = 0; i < 2; i++) {
-      await page.locator('header a[data-signup-open]').click();
+      await page.locator('section[aria-labelledby="hero-title"] a[data-signup-open]').click();
       await expect(dialog(page).getByLabel('Email')).toHaveValue('');
       await dialog(page).getByLabel('Email').fill(email);
       await page.waitForTimeout(1600);
