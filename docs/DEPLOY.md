@@ -2,6 +2,36 @@
 
 How the Sea Air Club site is set up on Vercel, connected to seaairclub.co.uk, and checked before go-live. Sign-up storage and the CSV export are covered in more detail in [SIGNUPS.md](SIGNUPS.md).
 
+## Current setup (30 October 2026)
+
+| What | Where |
+| --- | --- |
+| Repository | `oscar-richmond/sea-air-club` (private). Pushes to `main` deploy to production; other branches get preview URLs. |
+| Vercel project | `sea-air-club` in "oscar-richmond's projects", functions in London (`lhr1`), Node 24.x |
+| Live link (pre-domain) | https://sea-air-club.vercel.app |
+| Deployment Protection | Vercel Authentication **off**, so links open for anyone, including Freddie, without a Vercel login |
+| Sign-up storage | Private Blob store `sea-air-club-signups` (London), connected to Production, Preview and Development |
+| Search engines | Kept out while on vercel.app: `SITE_NOINDEX=true` on Production adds `noindex` and `Disallow: /` |
+
+Environment variables currently set:
+
+| Variable | Value | Environments |
+| --- | --- | --- |
+| `SITE_URL` | `https://sea-air-club.vercel.app` | Production, Preview |
+| `SITE_NOINDEX` | `true` | Production |
+| `SIGNUP_STORE` | `blob` | Production, Preview |
+| `BLOB_READ_WRITE_TOKEN` | added by the Blob store | all |
+| `ADMIN_EXPORT_PASSWORD` | set (sensitive, given to Oscar separately) | Production, Preview |
+
+Preview deployments write to the same Blob store as production. Test with `@example.com` addresses and delete test entries afterwards (see SIGNUPS.md).
+
+### Switching to seaairclub.co.uk
+
+1. Add the domain and DNS records (section 6 below).
+2. Change `SITE_URL` to `https://seaairclub.co.uk` and delete `SITE_NOINDEX`.
+3. Redeploy production, then run the go-live checklist at the end of this file. The QR code, canonical tags, sitemap and sharing image all follow `SITE_URL`.
+4. Keep `sea-air-club.vercel.app` redirecting to the real domain: in Domains, edit it and set **Redirect to `seaairclub.co.uk`**.
+
 ## 1. Create the Vercel project
 
 1. In Vercel, **Add New → Project** and import the GitHub repository. Connecting the repo is what gives automatic deploys:
