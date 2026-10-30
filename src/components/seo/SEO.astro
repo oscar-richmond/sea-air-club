@@ -1,10 +1,19 @@
 ---
 /**
- * Page <head> metadata. PLACEHOLDER: owned by the feat/seo branch, which replaces
- * this with the full version (Open Graph, Twitter, JSON-LD, favicons, noindex on previews).
+ * Page <head> metadata, rendered inside <head> by BaseLayout.
+ *
+ * - Title, description and an absolute canonical URL on the production domain.
+ * - noindex,nofollow when the page asks for it, and on every non-production Vercel
+ *   deployment (previews), so preview links never end up in search results.
+ * - Open Graph and Twitter cards with the 1200×630 sharing image.
+ * - Favicons, web manifest and theme colour.
+ * - LodgingBusiness structured data on the home page.
+ *
  * Keep the Props interface stable: BaseLayout passes exactly these.
  */
 import { site } from '@/config/site';
+import JsonLd from './JsonLd.astro';
+import { isNonProductionDeploy, previewDeploymentOrigin } from './deploy-env';
 
 export interface Props {
   title?: string;
@@ -14,12 +23,83 @@ export interface Props {
   noindex?: boolean;
 }
 
-const { title, description = site.seo.description, noindex = false } = Astro.props;
+const DEFAULT_IMAGE = '/og/sea-air-club-og.jpg';
+const DEFAULT_IMAGE_ALT =
+  'Sea Air Club: coming soon to Salcombe. A timber-clad cabin in a grassy Devon field.';
+
+const {
+  title,
+  description = site.seo.description,
+  image = DEFAULT_IMAGE,
+  noindex = false,
+} = Astro.props;
+
+const siteUrl = Astro.site ?? new URL(site.url);
 const fullTitle = title ? site.seo.titleTemplate.replace('%s', title) : site.seo.defaultTitle;
-const canonical = new URL(Astro.url.pathname, site.url).href;
+const shareTitle = title ?? site.seo.defaultTitle;
+
+// Canonical path without "index", ".html" or a trailing slash (trailingSlash: 'never').
+const path =
+  Astro.url.pathname
+    .replace(/\/index(\.html)?$/, '/')
+    .replace(/\.html$/, '')
+    .replace(/(.)\/$/, '$1') || '/';
+const canonical = new URL(path, siteUrl).href;
+const isHome = path === '/';
+
+const robotsNoindex = noindex || isNonProductionDeploy();
+
+// Sharing images resolve against this deployment on previews, so pasted preview links
+// show the card before the real domain is connected. Production uses the canonical domain.
+const imageUrl = new URL(image, previewDeploymentOrigin() ?? siteUrl).href;
+const imageAlt = image === DEFAULT_IMAGE ? DEFAULT_IMAGE_ALT : shareTitle;
+
+const homeUrl = new URL('/', siteUrl).href;
+const lodgingBusiness = {
+  '@context': 'https://schema.org',
+  '@type': 'LodgingBusiness',
+  '@id': `${homeUrl}#lodging`,
+  name: site.name,
+  description: site.seo.description,
+  url: homeUrl,
+  image: new URL(DEFAULT_IMAGE, siteUrl).href,
+  address: {
+    '@type': 'PostalAddress',
+    addressLocality: site.location.locality,
+    addressRegion: site.location.region,
+    addressCountry: site.location.country,
+  },
+  ...(site.instagramUrl ? { sameAs: [site.instagramUrl] } : {}),
+};
 ---
 
 <title>{fullTitle}</title>
 <meta name="description" content={description} />
-<link rel="canonical" href={canonical} />
-{noindex && <meta name="robots" content="noindex, nofollow" />}
+{robotsNoindex && <meta name="robots" content="noindex, nofollow" />}
+{!noindex && <link rel="canonical" href={canonical} />}
+
+<meta property="og:type" content="website" />
+<meta property="og:site_name" content={site.name} />
+<meta property="og:locale" content={site.locale} />
+<meta property="og:title" content={shareTitle} />
+<meta property="og:description" content={description} />
+{!noindex && <meta property="og:url" content={canonical} />}
+<meta property="og:image" content={imageUrl} />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:image:alt" content={imageAlt} />
+
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content={shareTitle} />
+<meta name="twitter:description" content={description} />
+<meta name="twitter:image" content={imageUrl} />
+<meta name="twitter:image:alt" content={imageAlt} />
+
+<meta name="theme-color" content="#2B2521" />
+<link rel="icon" href="/favicon.ico" sizes="32x32" />
+<link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+<link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+<link rel="manifest" href="/site.webmanifest" />
+<link rel="sitemap" href="/sitemap-index.xml" />
+
+{isHome && !noindex && <JsonLd data={lodgingBusiness} />}
