@@ -12,8 +12,11 @@
 export const FIELD = {
   firstName: 'firstName',
   email: 'email',
-  /** Honeypot: hidden from people, filled in by bots. Must arrive empty. */
-  honeypot: 'company',
+  /**
+   * Honeypot: hidden from people, filled in by bots. Must arrive empty. Deliberately a
+   * meaningless name, so browser autofill and password managers leave it alone.
+   */
+  honeypot: 'sac_hp',
   /** Milliseconds between the form being shown and submitted. Bots are instant. */
   elapsedMs: 'elapsedMs',
   consentVersion: 'consentVersion',
@@ -32,7 +35,7 @@ export type FieldName = (typeof FIELD)[keyof typeof FIELD];
 export interface SubscribeRequest {
   firstName?: string;
   email: string;
-  company?: string;
+  sac_hp?: string;
   elapsedMs?: number;
   consentVersion?: string;
   utm_source?: string;
@@ -63,6 +66,6 @@ export type SubscribeResponse =
 /** No-JavaScript fallback redirect targets. */
 export const REDIRECT = {
   success: '/join/thanks',
-  /** `?error=validation|rate_limited|server#signup-error` is appended. */
+  /** `?error=<code>#signup-error-<code>` is appended (validation, rate_limited or server). */
   failure: '/join',
 } as const;

@@ -39,7 +39,7 @@ async function json(res: Response): Promise<SubscribeResponse> {
 const valid = {
   email: EMAIL,
   firstName: 'Alex',
-  company: '',
+  sac_hp: '',
   elapsedMs: 4200,
   consentVersion: '2026-10',
   utm_source: 'postcard',
@@ -145,26 +145,25 @@ describe('POST /api/subscribe (no-JavaScript form)', () => {
     const { send } = setup();
     const res = await send(formRequest({ email: 'nope@', firstName: 'Alex' }));
     expect(res.status).toBe(303);
-    expect(res.headers.get('location')).toBe('/join?error=validation#signup-error');
+    expect(res.headers.get('location')).toBe('/join?error=validation#signup-error-validation');
     expect(res.headers.get('location')).not.toMatch(/nope|Alex/);
   });
 
   it('builds failure locations from the contract', () => {
-    expect(failureLocation('validation')).toBe(`${REDIRECT.failure}?error=validation#signup-error`);
-    expect(failureLocation('rate_limited')).toBe('/join?error=rate_limited#signup-error');
-    expect(failureLocation('server')).toBe('/join?error=server#signup-error');
+    expect(failureLocation('validation')).toBe(`${REDIRECT.failure}?error=validation#signup-error-validation`);
+    expect(failureLocation('rate_limited')).toBe('/join?error=rate_limited#signup-error-rate_limited');
+    expect(failureLocation('server')).toBe('/join?error=server#signup-error-server');
   });
 });
 
-describe('spam is dropped silently', () => {
-  const cases: [string, Record<string, unknown>][] = [
-    ['honeypot', { ...valid, company: 'Acme' }],
-    ['too fast', { ...valid, elapsedMs: 300 }],
-    ['link in name', { ...valid, firstName: 'see http://spam.example' }],
+describe('spam is flagged, never thrown away', () => {
+  const cases: [string, Record<string, unknown>, string][] = [
+    ['honeypot', { ...valid, sac_hp: 'Acme' }, 'honeypot'],
+    ['too fast', { ...valid, elapsedMs: 300 }, 'too_fast'],
   ];
 
-  for (const [name, body] of cases) {
-    it(`${name}: looks like success, stores nothing, sends no webhook`, async () => {
+  for (const [name, body, reason] of cases) {
+    it(`${name}: looks like success, stored as flagged, sends no webhook`, async () => {
       const { send, store, fetchMock } = setup({
         webhook: { url: 'https://hooks.example.com/signup' },
       });
@@ -172,17 +171,39 @@ describe('spam is dropped silently', () => {
       expect(res.status).toBe(200);
       const parsed = await json(res);
       expect(parsed).toMatchObject({ ok: true, alreadySubscribed: false });
-      expect(await store.list()).toHaveLength(0);
+      const records = await store.list();
+      expect(records).toHaveLength(1);
+      expect(records[0]!.flagged).toBe(reason);
       expect(fetchMock).not.toHaveBeenCalled();
     });
   }
 
+  it('a clean repeat clears the flag; a flagged repeat never adds one', async () => {
+    const { send, store } = setup();
+    await send(jsonRequest({ ...valid, elapsedMs: 300 }));
+    expect((await store.list())[0]!.flagged).toBe('too_fast');
+    await send(jsonRequest(valid));
+    expect((await store.list())[0]!.flagged).toBeNull();
+    await send(jsonRequest({ ...valid, sac_hp: 'Acme' }));
+    expect((await store.list())[0]!.flagged).toBeNull();
+  });
+
+  it('a link in the first name keeps the sign-up and drops the name', async () => {
+    const { send, store } = setup();
+    const res = await send(jsonRequest({ ...valid, firstName: 'jo@example.co.uk' }));
+    expect(await json(res)).toMatchObject({ ok: true, firstName: null });
+    const records = await store.list();
+    expect(records).toHaveLength(1);
+    expect(records[0]!.firstName).toBeNull();
+    expect(records[0]!.flagged).toBeNull();
+  });
+
   it('honeypot on the no-JavaScript form redirects to the thanks page', async () => {
     const { send, store } = setup();
-    const res = await send(formRequest({ email: EMAIL, company: 'Acme' }));
+    const res = await send(formRequest({ email: EMAIL, sac_hp: 'Acme' }));
     expect(res.status).toBe(303);
     expect(res.headers.get('location')).toBe(REDIRECT.success);
-    expect(await store.list()).toHaveLength(0);
+    expect((await store.list())[0]!.flagged).toBe('honeypot');
   });
 
   it('skips the timing check when elapsedMs is missing', async () => {
@@ -193,16 +214,16 @@ describe('spam is dropped silently', () => {
 
   it('silently drops spam even when the email is invalid', async () => {
     const { send } = setup();
-    const res = await send(jsonRequest({ email: 'junk', company: 'Acme' }));
+    const res = await send(jsonRequest({ email: 'junk', sac_hp: 'Acme' }));
     expect(res.status).toBe(200);
   });
 });
 
 describe('rate limiting', () => {
-  it('allows 5 attempts per IP, then 429 with Retry-After', async () => {
+  it('allows 30 attempts per IP, then 429 with Retry-After', async () => {
     const { send } = setup();
     const ip = { 'x-forwarded-for': '203.0.113.9, 10.0.0.1' };
-    for (let i = 0; i < 5; i++) {
+    for (let i = 0; i < 30; i++) {
       const res = await send(jsonRequest({ email: `p${i}@example.com` }, ip));
       expect(res.status).toBe(200);
     }
@@ -223,7 +244,7 @@ describe('rate limiting', () => {
     await send(formRequest({ email: EMAIL }));
     const res = await send(formRequest({ email: EMAIL }));
     expect(res.status).toBe(303);
-    expect(res.headers.get('location')).toBe('/join?error=rate_limited#signup-error');
+    expect(res.headers.get('location')).toBe('/join?error=rate_limited#signup-error-rate_limited');
   });
 });
 
@@ -265,7 +286,7 @@ describe('storage failure', () => {
   it('redirects with error=server for the no-JavaScript form', async () => {
     const { send } = setup({ getStore: () => failing });
     const res = await send(formRequest({ email: EMAIL }));
-    expect(res.headers.get('location')).toBe('/join?error=server#signup-error');
+    expect(res.headers.get('location')).toBe('/join?error=server#signup-error-server');
   });
 
   it('treats a store that cannot even be created as a server error', async () => {
@@ -326,7 +347,7 @@ describe('logging', () => {
     });
     await send(jsonRequest(valid));
     await send(jsonRequest(valid));
-    await send(jsonRequest({ ...valid, company: 'Acme' }));
+    await send(jsonRequest({ ...valid, sac_hp: 'Acme' }));
     const failing = setup({
       getStore: () => ({
         kind: 'memory',

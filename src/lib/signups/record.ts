@@ -44,6 +44,7 @@ export function applySubmission(
       submissions: 1,
       firstSource: copySource(input.source),
       lastSource: copySource(input.source),
+      flagged: input.flagged ?? null,
     };
   }
   return {
@@ -54,6 +55,8 @@ export function applySubmission(
     submissions: (existing.submissions || 1) + 1,
     firstSource: copySource(existing.firstSource),
     lastSource: copySource(input.source),
+    // One clean submission is enough to trust the record; a flagged one never downgrades it.
+    flagged: existing.flagged && input.flagged ? existing.flagged : null,
   };
 }
 
@@ -94,5 +97,6 @@ export function parseStoredRecord(value: unknown): SignupRecord | null {
     submissions: typeof r.submissions === 'number' && r.submissions > 0 ? r.submissions : 1,
     firstSource: readSource(r.firstSource),
     lastSource: readSource(r.lastSource ?? r.firstSource),
+    flagged: r.flagged === 'honeypot' || r.flagged === 'too_fast' ? r.flagged : null,
   };
 }

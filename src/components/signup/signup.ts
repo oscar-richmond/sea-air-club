@@ -76,6 +76,10 @@ function enhance(root: HTMLElement) {
   const idleLabel = submitLabel?.textContent ?? '';
   const successBody = root.querySelector<HTMLElement>('[data-success-body]');
   const successTitle = root.querySelector<HTMLElement>('[data-success-title]');
+  // In the pop-up, the dialog's accessible name follows the visible state.
+  const dialogEl = root.closest('dialog');
+  const formLabel = dialogEl?.getAttribute('aria-labelledby') ?? null;
+  const formDescription = dialogEl?.getAttribute('aria-describedby') ?? null;
   let shownAt = performance.now();
   let busy = false;
 
@@ -123,6 +127,10 @@ function enhance(root: HTMLElement) {
       successBody.textContent = (template ?? '').replace('{name}', firstName ?? '');
     }
     root.dataset.state = 'success';
+    if (dialogEl && successTitle?.id) {
+      dialogEl.setAttribute('aria-labelledby', successTitle.id);
+      dialogEl.removeAttribute('aria-describedby');
+    }
     successTitle?.focus();
     try {
       track('Early access sign-up', { source: attribution.utm_source ?? 'direct' });
@@ -136,6 +144,8 @@ function enhance(root: HTMLElement) {
     clearErrors();
     if (root.dataset.state === 'success') form.reset();
     root.dataset.state = 'form';
+    if (dialogEl && formLabel) dialogEl.setAttribute('aria-labelledby', formLabel);
+    if (dialogEl && formDescription) dialogEl.setAttribute('aria-describedby', formDescription);
   });
 
   // Errors passed back by the no-JS redirect (/join?error=…)
@@ -177,7 +187,7 @@ function enhance(root: HTMLElement) {
     const payload: SubscribeRequest = {
       email,
       firstName: firstName || undefined,
-      company: input(FIELD.honeypot)?.value ?? '',
+      sac_hp: input(FIELD.honeypot)?.value ?? '',
       elapsedMs: Math.round(performance.now() - shownAt),
       consentVersion: input(FIELD.consentVersion)?.value,
       ...attribution,
@@ -221,6 +231,9 @@ function setupDialog(dialog: HTMLDialogElement) {
   const finePointer = window.matchMedia('(pointer: fine)');
   let pushedHash = false;
   let pressStartedOnBackdrop = false;
+  // Safari doesn't focus links on tap, so remember the button that opened the pop-up and
+  // put focus back on it when it closes (keeps VoiceOver users where they were).
+  let opener: HTMLElement | null = null;
 
   function open(fromClick: boolean) {
     if (dialog.open) return;
@@ -238,6 +251,8 @@ function setupDialog(dialog: HTMLDialogElement) {
   }
 
   dialog.addEventListener('close', () => {
+    if (opener && document.contains(opener)) opener.focus({ preventScroll: true });
+    opener = null;
     if (window.location.hash === '#join') {
       if (pushedHash) history.back();
       else history.replaceState(null, '', window.location.pathname + window.location.search);
@@ -258,12 +273,13 @@ function setupDialog(dialog: HTMLDialogElement) {
   });
 
   document.addEventListener('click', (event) => {
-    const opener = (event.target as Element).closest('[data-signup-open]');
-    if (!opener) return;
+    const trigger = (event.target as Element).closest<HTMLElement>('[data-signup-open]');
+    if (!trigger) return;
     if (event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) {
       return; // let new-tab clicks go to /join
     }
     event.preventDefault();
+    opener = trigger;
     open(true);
   });
 

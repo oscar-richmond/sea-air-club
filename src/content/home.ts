@@ -88,7 +88,7 @@ export const home = {
       email: 'Please enter a valid email address.',
       firstName: 'Please keep your first name under 60 characters.',
       generic: "Sorry, something went wrong and you're not on the list yet. Please try again.",
-      rateLimited: 'Too many attempts. Please wait a minute and try again.',
+      rateLimited: 'Too many attempts from this connection. Please try again in a few minutes.',
     },
   },
   footer: {

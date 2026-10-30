@@ -1,7 +1,9 @@
 ---
 /**
  * Full-bleed hero. Image crop follows the Figma masks:
- * mobile shows the right of the frame (85% 50%), desktop the bottom (50% 100%).
+ * mobile shows the right of the frame (85% 50%); desktop is zoomed 112% and bottom-aligned,
+ * so the title sits over the cabin's windows. Very wide screens zoom out to keep the roof.
+ * `sizes` accounts for the portrait crop on phones (the image is sized by height there).
  */
 import { Picture } from 'astro:assets';
 import Button from '@/components/ui/Button.astro';
@@ -20,17 +22,17 @@ const image = images[hero.image];
     alt={image.alt}
     formats={['avif', 'webp']}
     widths={[480, 768, 1024, 1280, image.src.width]}
-    sizes="100vw"
+    sizes="(max-width: 1023px) 128vh, 112vw"
     loading="eager"
     fetchpriority="high"
     decoding="async"
-    class="absolute inset-0 -z-20 size-full object-cover object-[85%_50%] md:object-[65%_70%] lg:object-[50%_85%]"
+    class="absolute inset-0 -z-20 size-full object-cover object-[85%_50%] md:object-[65%_70%] lg:origin-bottom lg:scale-[1.12] lg:object-[50%_100%] min-[1800px]:scale-100 min-[1800px]:object-[50%_80%]"
   />
   <div class="absolute inset-0 -z-10" style="background: var(--hero-shade)" aria-hidden="true"></div>
 
   <div class="flex max-w-[68.75rem] flex-col items-center">
     <p class="eyebrow">{hero.eyebrow}</p>
-    <h1 id="hero-title" class="mt-1.5 text-display lg:mt-0">{hero.title}</h1>
+    <h1 id="hero-title" class="mt-1.5 text-display max-lg:leading-[0.98] max-[359px]:text-[2.75rem] lg:mt-0">{hero.title}</h1>
     <Button opensSignup glow class="mt-8 lg:mt-10">{hero.cta}</Button>
   </div>
 </section>

@@ -32,6 +32,8 @@ export interface SignupRecord {
   firstSource: SignupSource;
   /** Source of the latest submission. */
   lastSource: SignupSource;
+  /** Set when every submission so far tripped a spam check. Left out of the CSV by default. */
+  flagged: 'honeypot' | 'too_fast' | null;
 }
 
 /** A validated, cleaned submission, ready to store. */
@@ -40,6 +42,8 @@ export interface SignupInput {
   firstName: string | null;
   consentVersion: string | null;
   source: SignupSource;
+  /** Spam check hit for this submission, if any. */
+  flagged?: 'honeypot' | 'too_fast' | null;
 }
 
 export interface UpsertResult {

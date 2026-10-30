@@ -51,13 +51,13 @@ describe('readSubmission', () => {
     const req = new Request(`${SITE}/api/subscribe`, {
       method: 'POST',
       headers: { 'content-type': 'application/x-www-form-urlencoded' },
-      body: 'email=a%40example.com&firstName=Ana&firstName=Other&company=&utm_source=postcard',
+      body: 'email=a%40example.com&firstName=Ana&firstName=Other&sac_hp=&utm_source=postcard',
     });
     const r = await readSubmission(req);
     expect(r).toEqual({
       ok: true,
       kind: 'urlencoded',
-      raw: { email: 'a@example.com', firstName: 'Ana', company: '', utm_source: 'postcard' },
+      raw: { email: 'a@example.com', firstName: 'Ana', sac_hp: '', utm_source: 'postcard' },
     });
   });
 

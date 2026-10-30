@@ -8,13 +8,13 @@ function clock(start = 1_000_000) {
 }
 
 describe('createRateLimiter', () => {
-  it('allows 5 attempts per 10 minutes for sign-ups, then blocks', () => {
+  it('allows 30 attempts per 10 minutes for sign-ups, then blocks', () => {
     const c = clock();
     const limiter = createRateLimiter({ ...SUBSCRIBE_RATE_LIMIT, now: c.now });
-    for (let i = 0; i < 5; i++) {
+    for (let i = 0; i < 30; i++) {
       const r = limiter.hit('203.0.113.7');
       expect(r.allowed).toBe(true);
-      expect(r.remaining).toBe(4 - i);
+      expect(r.remaining).toBe(29 - i);
     }
     const blocked = limiter.hit('203.0.113.7');
     expect(blocked.allowed).toBe(false);

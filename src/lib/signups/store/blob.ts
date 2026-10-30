@@ -65,7 +65,7 @@ const MAX_WRITE_ATTEMPTS = 3;
 export function createBlobStore({
   token,
   api = vercelBlobApi,
-  concurrency = 8,
+  concurrency = 16,
   timeoutMs = 6000,
   logger,
 }: BlobStoreOptions): SignupStore {

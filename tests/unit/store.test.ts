@@ -53,6 +53,7 @@ describe('applySubmission', () => {
       submissions: 1,
       firstSource: source({ utm_source: 'postcard', utm_medium: 'print' }),
       lastSource: source({ utm_source: 'postcard', utm_medium: 'print' }),
+      flagged: null,
     });
     // No IP address or user agent, ever.
     expect(Object.keys(r).sort()).toEqual(
@@ -62,6 +63,7 @@ describe('applySubmission', () => {
         'email',
         'firstName',
         'firstSource',
+        'flagged',
         'id',
         'lastSource',
         'submissions',

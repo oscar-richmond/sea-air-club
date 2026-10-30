@@ -4,11 +4,29 @@
  * Fluid sizes interpolate between the mobile (390px) and desktop (1440px) frames.
  */
 @import 'tailwindcss';
-@import '@fontsource-variable/fraunces/full.css';
-@import '@fontsource-variable/fraunces/full-italic.css';
 @import '@fontsource/alegreya-sans/300.css';
 @import '@fontsource/alegreya-sans/400.css';
 @import '@fontsource/alegreya-sans/500.css';
+
+/*
+ * Fraunces, cut down for the web: weight, softness and wonk are pinned to the Figma instance
+ * (400, SOFT 0, WONK 1) and only the optical-size axis is kept, Latin only. About 34 KB
+ * (roman) and 42 KB (italic) instead of 118 KB and 146 KB. Rebuild with scripts/build-fonts.py.
+ */
+@font-face {
+  font-family: 'Fraunces SAC';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('../assets/fonts/fraunces-normal-opsz.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Fraunces SAC';
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+  src: url('../assets/fonts/fraunces-italic-opsz.woff2') format('woff2');
+}
 
 @theme {
   /* Brand palette (Jasper's guidelines) + Oscar's off-white for v2 */
@@ -27,7 +45,7 @@
 
   /* Type families. Gill Sans Light is the brand body face; Alegreya Sans Light stands in
      until a web licence is in place. Swap here and everything follows. */
-  --font-serif: 'Fraunces Variable', Georgia, 'Times New Roman', serif;
+  --font-serif: 'Fraunces SAC', Georgia, 'Times New Roman', serif;
   --font-sans: 'Alegreya Sans', 'Gill Sans', 'Gill Sans MT', Calibri, system-ui, sans-serif;
 
   /* Type scale (SAC / text styles). Fluid where mobile and desktop differ. */
@@ -44,7 +62,7 @@
   --text-heading-s--letter-spacing: -0.015em;
 
   --text-statement: clamp(1.75rem, 1.6571rem + 0.381vw, 2rem); /* 28 → 32 */
-  --text-statement--line-height: 1.05;
+  --text-statement--line-height: 1;
   --text-statement--letter-spacing: -0.02em;
 
   --text-title: 1.75rem; /* 28 */
@@ -92,7 +110,12 @@
 
 /* Layout tokens (plain custom properties, used with Tailwind's `(--var)` syntax) */
 :root {
-  --gutter: clamp(1.5rem, 0.5714rem + 3.8095vw, 4rem); /* 24 → 64 */
+  /* 24 → 64, and never under a notch or rounded corner (iPhone in landscape) */
+  --gutter: max(
+    clamp(1.5rem, 0.5714rem + 3.8095vw, 4rem),
+    env(safe-area-inset-left, 0px),
+    env(safe-area-inset-right, 0px)
+  );
   --section-y: clamp(5rem, 3.6071rem + 5.7143vw, 8.75rem); /* 80 → 140 */
   --band-y: clamp(6rem, 4.05rem + 8vw, 11.25rem); /* 96 → 180 */
   --hero-shade: linear-gradient(
@@ -124,15 +147,12 @@
     overflow-x: clip;
   }
 
-  /* Fraunces: match Figma's instance (soft 0, wonky 1) and let optical size follow font size. */
+  /* Fraunces: the font file is already pinned to Figma's instance; optical size follows font size. */
   .font-serif,
   h1,
   h2,
   h3 {
     font-family: var(--font-serif);
-    font-variation-settings:
-      'SOFT' 0,
-      'WONK' 1;
     font-optical-sizing: auto;
     font-weight: 400;
   }
@@ -199,11 +219,23 @@
 
   .wordmark {
     font-family: var(--font-serif);
+    font-weight: 400;
+    font-optical-sizing: auto;
     font-size: var(--text-wordmark);
     line-height: 1;
-    letter-spacing: var(--text-wordmark--letter-spacing);
+    letter-spacing: 0.14em;
     text-transform: uppercase;
     white-space: nowrap;
+  }
+  @media (min-width: 1024px) {
+    .wordmark {
+      letter-spacing: var(--text-wordmark--letter-spacing);
+    }
+  }
+
+  /* SAC / Small is Alegreya Sans Regular in Figma (body copy is Light). */
+  .text-small {
+    font-weight: 400;
   }
 
   .sr-only-focusable:not(:focus):not(:focus-within) {

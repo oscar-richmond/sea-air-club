@@ -14,7 +14,8 @@ export default defineConfig({
   output: 'static',
   adapter: vercel({
     webAnalytics: { enabled: true },
-    maxDuration: 10,
+    // Room for the CSV export to read every sign-up once the list is in the thousands.
+    maxDuration: 30,
   }),
   integrations: [
     sitemap({
@@ -24,7 +25,6 @@ export default defineConfig({
   compressHTML: true,
   devToolbar: { enabled: false },
   trailingSlash: 'never',
-  build: { format: 'file' },
   image: {
     // Build-time optimisation with sharp: AVIF/WebP at several widths, no runtime cost.
     responsiveStyles: false,

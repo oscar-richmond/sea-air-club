@@ -10,7 +10,7 @@ How the Sea Air Club site is set up on Vercel, connected to seaairclub.co.uk, an
 | Vercel project | `sea-air-club` in "oscar-richmond's projects", functions in London (`lhr1`), Node 24.x |
 | Live link (pre-domain) | https://sea-air-club.vercel.app |
 | Deployment Protection | Vercel Authentication **off**, so links open for anyone, including Freddie, without a Vercel login |
-| Sign-up storage | Private Blob store `sea-air-club-signups` (London), connected to Production, Preview and Development |
+| Sign-up storage | Private Blob store `sea-air-club-signups` (London). Its token is on **Production only**, so previews and local dev never touch the real list |
 | Search engines | Kept out while on vercel.app: `SITE_NOINDEX=true` on Production adds `noindex` and `Disallow: /` |
 
 Environment variables currently set:
@@ -19,11 +19,11 @@ Environment variables currently set:
 | --- | --- | --- |
 | `SITE_URL` | `https://sea-air-club.vercel.app` | Production, Preview |
 | `SITE_NOINDEX` | `true` | Production |
-| `SIGNUP_STORE` | `blob` | Production, Preview |
-| `BLOB_READ_WRITE_TOKEN` | added by the Blob store | all |
-| `ADMIN_EXPORT_PASSWORD` | set (sensitive, given to Oscar separately) | Production, Preview |
+| `SIGNUP_STORE` | `blob` | Production |
+| `BLOB_READ_WRITE_TOKEN` | added by the Blob store | Production |
+| `ADMIN_EXPORT_PASSWORD` | set (sensitive, given to Oscar separately) | Production |
 
-Preview deployments write to the same Blob store as production. Test with `@example.com` addresses and delete test entries afterwards (see SIGNUPS.md).
+Preview deployments use the in-memory store (sign-ups look like they work but aren't kept) and have the CSV export switched off. Test sign-ups on the live link with `@example.com` addresses: the export leaves them out automatically.
 
 ### Switching to seaairclub.co.uk
 

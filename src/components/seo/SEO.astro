@@ -36,7 +36,7 @@ const {
 
 const siteUrl = Astro.site ?? new URL(site.url);
 const fullTitle = title ? site.seo.titleTemplate.replace('%s', title) : site.seo.defaultTitle;
-const shareTitle = title ?? site.seo.defaultTitle;
+const shareTitle = fullTitle;
 
 // Canonical path without "index", ".html" or a trailing slash (trailingSlash: 'never').
 const path =

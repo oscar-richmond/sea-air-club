@@ -22,7 +22,6 @@ This repo is the Sea Air Club website. It starts as the holding page (the Figma 
 - Routes that need a server set `export const prerender = false`:
   - `POST /api/subscribe`: sign-ups.
   - `GET /api/admin/signups.csv`: password-protected CSV export for ResNexus import.
-  - `/join`: the standalone sign-up page. It's on-demand so it can show server-side errors to visitors without JavaScript.
 - Images are optimised at build time with sharp (AVIF and WebP, several widths).
 
 ## Directory layout
@@ -63,7 +62,7 @@ Colours, type and spacing come from the Figma file "Sea Air Club — Holding Pag
 
 ## Sign-up flow
 
-1. Any "Join" button is a link to `/join` marked `data-signup-open`. With JavaScript it opens the pop-up instead (a native `<dialog>`). Visiting `/#join` also opens it, which is where the QR code points.
+1. Any "Join" button is a link to `/join` marked `data-signup-open`. With JavaScript it opens the pop-up instead (a native `<dialog>`). Visiting `/#join` also opens it. The QR code points to the standalone `/join` page (`/join?utm_source=website&utm_medium=qr`), which is static and shows server errors without JavaScript through a `#signup-error-<code>` fragment.
 2. The form POSTs to `/api/subscribe` (JSON from the pop-up, a normal form post without JavaScript).
 3. The server validates, applies spam checks (honeypot, minimum time on form, rate limit), normalises the email and stores the record. It also forwards to an optional webhook (`SIGNUP_WEBHOOK_URL`).
 4. Freddie or Vicki downloads `/api/admin/signups.csv` (password in `ADMIN_EXPORT_PASSWORD`) and imports it into the ResNexus "Pre launch early access" interest group.

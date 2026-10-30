@@ -67,6 +67,7 @@ async function setup(overrides: Partial<ExportDeps> = {}) {
     );
   await add('ann@example.com', '2026-11-01T10:00:00.000Z', { firstName: 'Ann' });
   await add('bob@example.com', '2026-11-08T10:00:00.000Z', { firstName: '@Bob' });
+  await add('bot@example.com', '2026-11-09T10:00:00.000Z', { flagged: 'too_fast' });
 
   const deps: ExportDeps = {
     getStore: () => store,
@@ -132,6 +133,17 @@ describe('GET /api/admin/signups.csv', () => {
     expect(isTestEmail('x@foo.test')).toBe(true);
     expect(isTestEmail('guest@gmail.com')).toBe(false);
     expect(isTestEmail('hello@examples.com')).toBe(false);
+  });
+
+  it('leaves flagged sign-ups out unless ?include_flagged=1', async () => {
+    const { get } = await setup();
+    const auth = { authorization: basic('admin', 'test') };
+    const plain = await (await get('/api/admin/signups.csv?include_tests=1', auth)).text();
+    expect(plain).not.toContain('bot@example.com');
+    const all = await (
+      await get('/api/admin/signups.csv?include_tests=1&include_flagged=1', auth)
+    ).text();
+    expect(all).toContain('bot@example.com');
   });
 
   it('filters with ?since=YYYY-MM-DD', async () => {

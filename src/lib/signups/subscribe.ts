@@ -9,7 +9,7 @@ import {
 } from './http';
 import { describeError, maskEmail } from './log';
 import { createRateLimiter, getClientIp, type RateLimiter } from './rate-limit';
-import { detectSpam } from './spam';
+import { containsLink, detectSpam } from './spam';
 import type { SignupStore } from './store/types';
 import type { Logger } from './types';
 import { cleanFirstName, LIMITS, parseSubmission } from './validation';
@@ -17,8 +17,11 @@ import { sendWebhook, type WebhookSettings } from './webhook';
 
 export type SubscribeErrorCode = 'validation' | 'rate_limited' | 'server';
 
-/** 5 attempts per 10 minutes per IP, per server instance. */
-export const SUBSCRIBE_RATE_LIMIT = { limit: 5, windowMs: 10 * 60 * 1000 } as const;
+/**
+ * 30 attempts per 10 minutes per IP, per server instance. Generous on purpose: people share
+ * addresses on venue Wi-Fi and mobile networks. A Vercel Firewall rule is the real control.
+ */
+export const SUBSCRIBE_RATE_LIMIT = { limit: 30, windowMs: 10 * 60 * 1000 } as const;
 
 export function createSubscribeRateLimiter(): RateLimiter {
   return createRateLimiter(SUBSCRIBE_RATE_LIMIT);
@@ -41,7 +44,7 @@ export interface SubscribeDeps {
 /** Where the no-JavaScript form goes next. No personal data ever goes in these URLs. */
 export function failureLocation(code: SubscribeErrorCode): string {
   // The fragment shows the error message on /join even without JavaScript (CSS :target).
-  return `${REDIRECT.failure}?error=${code}#signup-error`;
+  return `${REDIRECT.failure}?error=${code}#signup-error-${code}`;
 }
 
 const STATUS: Record<SubscribeErrorCode, number> = {
@@ -66,8 +69,8 @@ function respond(
 }
 
 /** The name to echo back on a silent drop, so it looks exactly like a real success. */
-function echoName(raw: unknown, reason: string): string | null {
-  if (reason === 'link_in_name' || typeof raw !== 'string') return null;
+function echoName(raw: unknown): string | null {
+  if (typeof raw !== 'string' || containsLink(raw)) return null;
   const cleaned = cleanFirstName(raw);
   return cleaned && cleaned.length <= LIMITS.firstName ? cleaned : null;
 }
@@ -106,20 +109,24 @@ export async function handleSubscribe(request: Request, deps: SubscribeDeps): Pr
   const raw = body.raw;
 
   const spam = detectSpam(raw);
-  if (spam) {
-    logger.info('Dropped a spam sign-up', { reason: spam });
-    return respond(asJson, {
-      ok: true,
-      firstName: echoName(raw[FIELD.firstName], spam),
-      alreadySubscribed: false,
-    });
-  }
 
   const parsed = parseSubmission(raw);
   if (!parsed.ok) {
+    if (spam) {
+      // Bot with an unusable address: nothing worth keeping, and don't tell it why.
+      logger.info('Dropped a spam sign-up', { reason: spam });
+      return respond(asJson, {
+        ok: true,
+        firstName: echoName(raw[FIELD.firstName]),
+        alreadySubscribed: false,
+      });
+    }
     return respond(asJson, { ok: false, error: 'validation', fieldErrors: parsed.fieldErrors });
   }
-  const { input } = parsed;
+  const input = { ...parsed.input, flagged: spam };
+  // A link in the name field is a spam signal, but people also type their email there by
+  // mistake. Keep the sign-up, drop the name.
+  if (input.firstName && containsLink(input.firstName)) input.firstName = null;
 
   let result;
   try {
@@ -135,9 +142,10 @@ export async function handleSubscribe(request: Request, deps: SubscribeDeps): Pr
   logger.info(result.created ? 'New sign-up' : 'Repeat sign-up', {
     email: maskEmail(input.email),
     submissions: result.record.submissions,
+    ...(spam ? { flagged: spam } : {}),
   });
 
-  await sendWebhook(
+  if (!result.record.flagged) await sendWebhook(
     { event: result.created ? 'signup.created' : 'signup.updated', signup: result.record },
     deps.webhook,
     { logger, ...(deps.fetch ? { fetch: deps.fetch } : {}) },

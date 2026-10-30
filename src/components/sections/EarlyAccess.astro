@@ -25,8 +25,8 @@ const qrUrl = new URL(site.qrPath, site.url).href;
       src={image.src}
       alt={image.alt}
       formats={['avif', 'webp']}
-      widths={[480, 768, 1024, image.src.width]}
-      sizes="(min-width: 1024px) 50vw, 100vw"
+      widths={[480, 768, 1024, 1280, 1536, image.src.width].filter((w) => w <= image.src.width)}
+      sizes="(min-width: 1024px) 91vw, 162vw"
       loading="lazy"
       decoding="async"
       class="absolute inset-0 size-full object-cover object-[25%_50%] lg:origin-left lg:scale-[1.12] lg:object-[0%_50%]"
@@ -39,7 +39,7 @@ const qrUrl = new URL(site.qrPath, site.url).href;
   >
     <div class="max-w-[31.25rem]">
       <p class="eyebrow text-estuary">{earlyAccess.eyebrow}</p>
-      <h2 id="early-access-title" class="mt-3.5 text-heading [text-wrap:wrap] lg:mt-[18px]">
+      <h2 id="early-access-title" class="mt-3.5 text-heading [text-wrap:wrap] lg:mt-[18px] lg:leading-none">
         {earlyAccess.title.lead}{' '}<em>{earlyAccess.title.emphasis}</em>
       </h2>
       <p class="mt-4 text-body-l lg:mt-6">{earlyAccess.body}</p>

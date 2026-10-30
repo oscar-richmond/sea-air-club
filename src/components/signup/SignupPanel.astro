@@ -22,7 +22,7 @@ const { id, closable = false, headingLevel = 2 } = Astro.props;
 const { signup } = home;
 const Heading = headingLevel === 1 ? 'h1' : 'h2';
 const fieldClass =
-  'h-[52px] w-full rounded-(--radius-field) border border-estuary/35 bg-field px-4 text-body text-driftwood placeholder:text-driftwood/50 transition-[border-color,box-shadow] duration-150 hover:border-estuary/60 focus:border-estuary focus:outline-none focus-visible:outline-none focus:ring-2 focus:ring-estuary/25 aria-invalid:border-error aria-invalid:ring-error/20';
+  'h-[52px] w-full rounded-(--radius-field) border border-estuary/60 bg-field px-4 text-body text-driftwood placeholder:text-driftwood/50 transition-[border-color,box-shadow] duration-150 hover:border-estuary/80 focus:border-estuary focus:outline-none focus-visible:outline-none focus:ring-2 focus:ring-estuary/25 aria-invalid:border-error aria-invalid:ring-error/20';
 ---
 
 <div
@@ -59,7 +59,13 @@ const fieldClass =
     >
     </p>
     <noscript>
-      <p id="signup-error" class="signup-noscript-error text-small text-error">
+      <p id="signup-error-validation" class="signup-noscript-error text-small text-error">
+        {signup.errors.email}
+      </p>
+      <p id="signup-error-rate_limited" class="signup-noscript-error text-small text-error">
+        {signup.errors.rateLimited}
+      </p>
+      <p id="signup-error-server" class="signup-noscript-error text-small text-error">
         {signup.errors.generic}
       </p>
     </noscript>
@@ -111,8 +117,8 @@ const fieldClass =
 
       <!-- Spam honeypot: hidden from people and assistive tech; bots tend to fill it. -->
       <div class="absolute -left-[9999px] h-px w-px overflow-hidden" aria-hidden="true">
-        <label for={`${id}-company`}>Company</label>
-        <input id={`${id}-company`} name={FIELD.honeypot} type="text" tabindex="-1" autocomplete="off" />
+        <label for={`${id}-hp`}>Leave this field empty</label>
+        <input id={`${id}-hp`} name={FIELD.honeypot} type="text" tabindex="-1" autocomplete="off" data-1p-ignore data-lpignore="true" />
       </div>
       <input type="hidden" name={FIELD.consentVersion} value={signup.consentVersion} />
       <input type="hidden" name={FIELD.page} value={Astro.url.pathname} data-page />
@@ -145,7 +151,7 @@ const fieldClass =
         )
       }
     </div>
-    <Heading class="text-heading-s outline-none" tabindex="-1" data-success-title>
+    <Heading id={`${id}-success-title`} class="text-heading-s outline-none" tabindex="-1" data-success-title>
       {signup.success.title.lead}{' '}<em>{signup.success.title.emphasis}</em>
     </Heading>
     <p
@@ -182,7 +188,7 @@ const fieldClass =
   .signup-panel[data-state='success'] [data-view='success'] {
     display: flex;
   }
-  /* No-JS: the server redirects to /join?error=…#signup-error after a failed post. */
+  /* No-JS: the server redirects to /join?error=<code>#signup-error-<code> after a failed post. */
   .signup-noscript-error:not(:target) {
     display: none;
   }

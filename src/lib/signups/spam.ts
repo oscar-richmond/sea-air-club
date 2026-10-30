@@ -1,14 +1,18 @@
 import { FIELD } from './contract';
 import type { RawSubmission } from './validation';
 
-/** Submissions faster than this (from the form being shown) are treated as bots. */
-export const MIN_ELAPSED_MS = 1500;
+/**
+ * Submissions faster than this (from the form being shown) are flagged as likely bots.
+ * Kept low so browser autofill (which can complete the form in about a second) isn't caught.
+ */
+export const MIN_ELAPSED_MS = 800;
 
-export type SpamReason = 'honeypot' | 'too_fast' | 'link_in_name';
+export type SpamReason = 'honeypot' | 'too_fast';
 
 /**
- * Spam checks. A hit is dropped silently: the sender is told it worked, nothing is
- * stored and no webhook fires, so bots learn nothing.
+ * Spam checks. A hit is never thrown away: the sender is told it worked (bots learn
+ * nothing), the sign-up is stored with a `flagged` reason, no webhook fires, and the CSV
+ * export leaves it out unless asked. So a real person caught by mistake can be recovered.
  */
 export function detectSpam(raw: RawSubmission): SpamReason | null {
   // Honeypot: hidden from people, so anything in it came from a bot.
@@ -24,13 +28,10 @@ export function detectSpam(raw: RawSubmission): SpamReason | null {
     if (!Number.isFinite(ms) || ms < MIN_ELAPSED_MS) return 'too_fast';
   }
 
-  // People don't put links in their first name; spam bots do.
-  const firstName = raw[FIELD.firstName];
-  if (typeof firstName === 'string' && containsLink(firstName)) return 'link_in_name';
-
   return null;
 }
 
+/** Links in the first name are a spam signal; the name is dropped but the sign-up is kept. */
 const LINK_PATTERN =
   /http|www\.|:\/\/|\b[a-z0-9-]+\.(?:com|net|org|info|biz|ru|cn|xyz|top|io|co|uk|online|site|link|click|shop)\b/i;
 

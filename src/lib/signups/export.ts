@@ -66,6 +66,8 @@ export async function handleExport(request: Request, deps: ExportDeps): Promise<
   // Test sign-ups use reserved domains (example.com, .test, .invalid); leave them out of the
   // ResNexus import unless asked for with ?include_tests=1.
   const includeTests = params.get('include_tests') === '1';
+  // Sign-ups that tripped a spam check are kept but left out unless ?include_flagged=1.
+  const includeFlagged = params.get('include_flagged') === '1';
   if (since === null) {
     return text('Invalid "since" date. Use YYYY-MM-DD, e.g. ?since=2026-11-01', 400);
   }
@@ -79,7 +81,8 @@ export async function handleExport(request: Request, deps: ExportDeps): Promise<
   }
 
   const rows = filterSince(records, since).filter(
-    (record) => includeTests || !isTestEmail(record.email),
+    (record) =>
+      (includeTests || !isTestEmail(record.email)) && (includeFlagged || !record.flagged),
   );
   logger.info('Sign-ups exported', { rows: rows.length, since: since?.toISOString() ?? null });
 

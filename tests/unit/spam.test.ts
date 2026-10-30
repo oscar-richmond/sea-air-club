@@ -6,17 +6,17 @@ const base = { email: 'alex@example.com', firstName: 'Alex' };
 describe('detectSpam', () => {
   it('lets a normal submission through', () => {
     expect(detectSpam(base)).toBeNull();
-    expect(detectSpam({ ...base, company: '', elapsedMs: 4000 })).toBeNull();
+    expect(detectSpam({ ...base, sac_hp: '', elapsedMs: 4000 })).toBeNull();
   });
 
   it('flags a filled honeypot', () => {
-    expect(detectSpam({ ...base, company: 'Acme Ltd' })).toBe('honeypot');
+    expect(detectSpam({ ...base, sac_hp: 'Acme Ltd' })).toBe('honeypot');
   });
 
   it('flags submissions faster than the minimum time', () => {
     expect(detectSpam({ ...base, elapsedMs: 200 })).toBe('too_fast');
     expect(detectSpam({ ...base, elapsedMs: MIN_ELAPSED_MS - 1 })).toBe('too_fast');
-    expect(detectSpam({ ...base, elapsedMs: '900' })).toBe('too_fast');
+    expect(detectSpam({ ...base, elapsedMs: '700' })).toBe('too_fast');
     expect(detectSpam({ ...base, elapsedMs: 'soon' })).toBe('too_fast');
     expect(detectSpam({ ...base, elapsedMs: -5 })).toBe('too_fast');
   });
@@ -31,11 +31,11 @@ describe('detectSpam', () => {
     expect(detectSpam({ ...base, elapsedMs: '' })).toBeNull();
   });
 
-  it('flags links in the first name', () => {
-    expect(detectSpam({ ...base, firstName: 'Visit http://spam.example' })).toBe('link_in_name');
-    expect(detectSpam({ ...base, firstName: 'HTTPS stuff' })).toBe('link_in_name');
-    expect(detectSpam({ ...base, firstName: 'www.cheap-things' })).toBe('link_in_name');
-    expect(detectSpam({ ...base, firstName: 'buy at shop.com' })).toBe('link_in_name');
+  it('spots links in the first name (handled by dropping the name, not the sign-up)', () => {
+    expect(detectSpam({ ...base, firstName: 'Visit http://spam.example' })).toBeNull();
+    for (const name of ['Visit http://spam.example', 'HTTPS stuff', 'www.cheap-things', 'buy at shop.com', 'jo@example.co.uk']) {
+      expect(containsLink(name)).toBe(true);
+    }
   });
 
   it('does not flag ordinary names', () => {
