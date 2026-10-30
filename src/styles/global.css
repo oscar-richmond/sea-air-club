@@ -31,7 +31,7 @@
   --font-sans: 'Alegreya Sans', 'Gill Sans', 'Gill Sans MT', Calibri, system-ui, sans-serif;
 
   /* Type scale (SAC / text styles). Fluid where mobile and desktop differ. */
-  --text-display: clamp(3.25rem, 2.2286rem + 4.1905vw, 6rem); /* 52 → 96 */
+  --text-display: clamp(2.75rem, 2.2286rem + 4.1905vw, 7rem); /* 52 → 96 */
   --text-display--line-height: 0.94;
   --text-display--letter-spacing: -0.025em;
 
@@ -51,7 +51,7 @@
   --text-title--line-height: 1.15;
   --text-title--letter-spacing: -0.01em;
 
-  --text-wordmark: clamp(1.125rem, 0.9018rem + 0.5714vw, 1.5rem); /* 18 → 24 */
+  --text-wordmark: clamp(1.125rem, 0.9857rem + 0.5714vw, 1.5rem); /* 18 → 24 */
   --text-wordmark--line-height: 1;
   --text-wordmark--letter-spacing: 0.16em;
 
@@ -94,7 +94,7 @@
 :root {
   --gutter: clamp(1.5rem, 0.5714rem + 3.8095vw, 4rem); /* 24 → 64 */
   --section-y: clamp(5rem, 3.6071rem + 5.7143vw, 8.75rem); /* 80 → 140 */
-  --band-y: clamp(6rem, 3.6786rem + 9.5238vw, 11.25rem); /* 96 → 180 */
+  --band-y: clamp(6rem, 4.05rem + 8vw, 11.25rem); /* 96 → 180 */
   --hero-shade: linear-gradient(
     to bottom,
     rgb(43 37 33 / 0.6) 0%,
@@ -129,6 +129,7 @@
   h1,
   h2,
   h3 {
+    font-family: var(--font-serif);
     font-variation-settings:
       'SOFT' 0,
       'WONK' 1;

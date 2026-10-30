@@ -1,11 +1,24 @@
 ---
 import BaseLayout from '@/layouts/BaseLayout.astro';
-import Button from '@/components/ui/Button.astro';
+import SiteHeader from '@/components/sections/SiteHeader.astro';
+import Hero from '@/components/sections/Hero.astro';
+import Intro from '@/components/sections/Intro.astro';
+import Features from '@/components/sections/Features.astro';
+import Statement from '@/components/sections/Statement.astro';
+import EarlyAccess from '@/components/sections/EarlyAccess.astro';
+import Footer from '@/components/sections/Footer.astro';
+import SignupDialog from '@/components/signup/SignupDialog.astro';
 ---
 
 <BaseLayout>
-  <main id="main" class="p-(--gutter)">
-    <h1 class="text-display">Coming soon to Salcombe</h1>
-    <Button opensSignup>Join the early access list</Button>
+  <SiteHeader />
+  <main id="main">
+    <Hero />
+    <Intro />
+    <Features />
+    <Statement />
+    <EarlyAccess />
   </main>
+  <Footer />
+  <SignupDialog />
 </BaseLayout>

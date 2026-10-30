@@ -1,0 +1,127 @@
+---
+/**
+ * Estuary band with the statement line and a draggable strip of previews that
+ * bleeds off both edges (Cove Valley style). Swipe on touch, drag with a mouse,
+ * arrow keys when focused.
+ */
+import { Picture } from 'astro:assets';
+import { home, images } from '@/content/home';
+
+const { statement } = home;
+---
+
+<section class="on-dark overflow-hidden bg-estuary py-(--band-y) text-off-white" aria-labelledby="statement-title">
+  <div class="px-(--gutter) text-center">
+    <h2 id="statement-title" class="mx-auto max-w-[22ch] text-statement lg:max-w-none">
+      {statement.title}
+    </h2>
+    <p class="mx-auto mt-4 max-w-[20rem] text-small opacity-80 sm:max-w-none lg:mt-6">
+      {statement.caption}
+    </p>
+  </div>
+
+  <div class="mt-[clamp(2.25rem,1.2286rem+4.1905vw,5rem)]">
+    <ul
+      role="list"
+      tabindex="0"
+      aria-label="Cabin previews. Scroll sideways to see more."
+      class="gallery-strip flex snap-x snap-mandatory gap-3 overflow-x-auto overscroll-x-contain scroll-px-(--gutter) px-(--gutter) focus-visible:outline-offset-[-3px] lg:snap-none lg:scroll-px-0 lg:gap-4 lg:px-0"
+      data-gallery
+    >
+      {
+        statement.gallery.map((key, index) => {
+          const image = images[key];
+          return (
+            <li class="w-[77vw] max-w-[26.25rem] shrink-0 snap-start md:w-[46vw] lg:w-[29.17vw] lg:max-w-[35rem]">
+              <Picture
+                src={image.src}
+                alt={image.alt}
+                formats={['avif', 'webp']}
+                widths={[320, 480, 640, 840, 1120].filter((w) => w <= image.src.width)}
+                sizes="(min-width: 1024px) 29vw, (min-width: 768px) 46vw, 77vw"
+                loading={index < 3 ? 'eager' : 'lazy'}
+                decoding="async"
+                draggable="false"
+                class="aspect-4/3 w-full object-cover select-none"
+              />
+            </li>
+          );
+        })
+      }
+      <li class="w-px shrink-0 lg:hidden" aria-hidden="true"></li>
+    </ul>
+  </div>
+</section>
+
+<style>
+  .gallery-strip {
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+  }
+  .gallery-strip::-webkit-scrollbar {
+    display: none;
+  }
+  @media (pointer: fine) {
+    .gallery-strip {
+      cursor: grab;
+    }
+    .gallery-strip[data-dragging] {
+      cursor: grabbing;
+      scroll-snap-type: none;
+    }
+  }
+</style>
+
+<script>
+  // Desktop: start the strip part-way in so it bleeds off the left edge, as in the design
+  // (first card at x = -180 on a 1440 frame). Mouse users can drag; touch uses native scroll.
+  const strips = document.querySelectorAll<HTMLElement>('[data-gallery]');
+  const desktop = window.matchMedia('(min-width: 1024px)');
+
+  for (const strip of strips) {
+    const offset = () => {
+      if (desktop.matches) strip.scrollLeft = Math.round(window.innerWidth * (180 / 1440));
+    };
+    offset();
+
+    let startX = 0;
+    let startScroll = 0;
+    let moved = false;
+
+    strip.addEventListener('pointerdown', (event) => {
+      if (event.pointerType !== 'mouse' || event.button !== 0) return;
+      startX = event.clientX;
+      startScroll = strip.scrollLeft;
+      moved = false;
+      strip.setPointerCapture(event.pointerId);
+      strip.dataset.dragging = '';
+    });
+
+    strip.addEventListener('pointermove', (event) => {
+      if (!strip.hasPointerCapture(event.pointerId)) return;
+      const delta = event.clientX - startX;
+      if (Math.abs(delta) > 3) moved = true;
+      strip.scrollLeft = startScroll - delta;
+    });
+
+    const end = (event: PointerEvent) => {
+      if (strip.hasPointerCapture(event.pointerId)) strip.releasePointerCapture(event.pointerId);
+      delete strip.dataset.dragging;
+    };
+    strip.addEventListener('pointerup', end);
+    strip.addEventListener('pointercancel', end);
+
+    // Don't treat the end of a drag as a click.
+    strip.addEventListener(
+      'click',
+      (event) => {
+        if (moved) {
+          event.preventDefault();
+          event.stopPropagation();
+          moved = false;
+        }
+      },
+      true,
+    );
+  }
+</script>

@@ -1,0 +1,58 @@
+---
+/**
+ * Split section: image bleeding to the left edge, sign-up prompt on the right.
+ * The QR code shows on desktop only, for visitors who'd rather sign up on their phone.
+ */
+import { Picture } from 'astro:assets';
+import Button from '@/components/ui/Button.astro';
+import QrCode from '@/components/ui/QrCode.astro';
+import Tag from '@/components/ui/Tag.astro';
+import { site } from '@/config/site';
+import { home, images } from '@/content/home';
+
+const { earlyAccess } = home;
+const image = images[earlyAccess.image];
+const qrUrl = new URL(site.qrPath, site.url).href;
+---
+
+<section
+  id="early-access"
+  class="lg:grid lg:min-h-[clamp(40rem,54.17vw,60rem)] lg:grid-cols-2"
+  aria-labelledby="early-access-title"
+>
+  <div class="relative h-[clamp(26.25rem,107.7vw,35rem)] lg:h-auto">
+    <Picture
+      src={image.src}
+      alt={image.alt}
+      formats={['avif', 'webp']}
+      widths={[480, 768, 1024, image.src.width]}
+      sizes="(min-width: 1024px) 50vw, 100vw"
+      loading="lazy"
+      decoding="async"
+      class="absolute inset-0 size-full object-cover"
+    />
+    <Tag class="absolute top-6 left-6 lg:top-8 lg:left-8">{earlyAccess.imageTag}</Tag>
+  </div>
+
+  <div
+    class="px-(--gutter) pt-14 pb-[4.5rem] lg:flex lg:items-center lg:py-24 lg:pr-(--gutter) lg:pl-[clamp(3rem,-5rem+12.5vw,7.5rem)]"
+  >
+    <div class="max-w-[31.25rem]">
+      <p class="eyebrow text-estuary">{earlyAccess.eyebrow}</p>
+      <h2 id="early-access-title" class="mt-3.5 text-heading [text-wrap:wrap] lg:mt-[18px]">
+        {earlyAccess.title.lead}{' '}<em>{earlyAccess.title.emphasis}</em>
+      </h2>
+      <p class="mt-4 text-body-l lg:mt-6">{earlyAccess.body}</p>
+      <Button opensSignup class="mt-7 lg:mt-9">{earlyAccess.cta}</Button>
+      <p class="mt-3.5 text-small text-driftwood/40 lg:mt-[18px]">
+        Unsubscribe any time · <a href="/privacy" class="underline-offset-2 hover:underline">Privacy notice</a>
+      </p>
+      <div class="mt-11 hidden items-center gap-4 lg:flex">
+        <QrCode url={qrUrl} label="QR code linking to the early access sign-up" />
+        <p class="text-small text-estuary">
+          {earlyAccess.qrLabel[0]}<br />{earlyAccess.qrLabel[1]}
+        </p>
+      </div>
+    </div>
+  </div>
+</section>

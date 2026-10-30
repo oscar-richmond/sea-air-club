@@ -1,0 +1,27 @@
+---
+import Icon from '@/components/ui/Icon.astro';
+import { home } from '@/content/home';
+---
+
+<section
+  class="px-(--gutter) pt-[clamp(6.1875rem,5.7rem+2vw,7.5rem)] pb-[clamp(5rem,3.352rem+6.762vw,9.4375rem)]"
+  aria-label="What to expect"
+>
+  <div class="mx-auto max-w-[73.75rem]">
+    <hr class="h-px border-0 bg-driftwood/18" />
+    <ul
+      role="list"
+      class="mt-[clamp(3rem,2.6286rem+1.5238vw,4rem)] grid gap-11 lg:grid-cols-3 lg:gap-x-[clamp(2.5rem,-3.6538rem+9.6154vw,5rem)]"
+    >
+      {
+        home.features.map((feature) => (
+          <li>
+            <Icon name={feature.icon} class="text-estuary" />
+            <h3 class="mt-7 text-title">{feature.title}</h3>
+            <p class="mt-3 text-body">{feature.body}</p>
+          </li>
+        ))
+      }
+    </ul>
+  </div>
+</section>

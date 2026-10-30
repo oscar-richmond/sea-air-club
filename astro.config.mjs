@@ -22,6 +22,7 @@ export default defineConfig({
     }),
   ],
   compressHTML: true,
+  devToolbar: { enabled: false },
   trailingSlash: 'never',
   build: { format: 'file' },
   image: {

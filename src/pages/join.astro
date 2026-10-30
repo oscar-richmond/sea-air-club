@@ -1,0 +1,18 @@
+---
+/**
+ * Standalone sign-up page. Where "Join" links go without JavaScript, where the QR code
+ * points, and a tidy link for the Instagram bio.
+ */
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import JoinShell from '@/components/layout/JoinShell.astro';
+import SignupPanel from '@/components/signup/SignupPanel.astro';
+---
+
+<BaseLayout
+  title="Join the early access list"
+  description="Be the first to hear about launch dates, booking access and exclusive opening offers from Sea Air Club, three cabins near Salcombe, Devon."
+>
+  <JoinShell>
+    <SignupPanel id="page" headingLevel={1} />
+  </JoinShell>
+</BaseLayout>

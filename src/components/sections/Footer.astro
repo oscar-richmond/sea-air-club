@@ -1,0 +1,38 @@
+---
+import { site } from '@/config/site';
+import { home } from '@/content/home';
+
+const { footer } = home;
+const links = [
+  site.contactEmail && { label: site.contactEmail, href: `mailto:${site.contactEmail}` },
+  site.instagramUrl && { label: footer.instagram, href: site.instagramUrl, external: true },
+  { label: footer.privacy, href: '/privacy' },
+].filter(Boolean) as { label: string; href: string; external?: boolean }[];
+---
+
+<footer class="on-dark bg-driftwood px-(--gutter) pt-12 pb-12 text-off-white lg:pt-16 lg:pb-11">
+  <div class="flex flex-col gap-7 lg:flex-row lg:items-start lg:justify-between">
+    <div>
+      <p class="wordmark">{site.name}</p>
+      <p class="mt-2.5 text-small opacity-80 lg:mt-3">{footer.location}</p>
+    </div>
+    <nav aria-label="Footer">
+      <ul role="list" class="flex flex-col gap-3.5 text-button-s font-medium lg:mt-1.5 lg:flex-row lg:gap-9">
+        {
+          links.map((link) => (
+            <li>
+              <a
+                href={link.href}
+                class="underline-offset-4 hover:underline"
+                {...(link.external ? { target: '_blank', rel: 'noopener' } : {})}
+              >
+                {link.label}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </nav>
+  </div>
+  <p class="mt-8 text-small opacity-60 lg:mt-[4.75rem]">© {site.name} {site.copyrightYear}</p>
+</footer>

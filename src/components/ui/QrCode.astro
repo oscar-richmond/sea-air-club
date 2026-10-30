@@ -1,0 +1,33 @@
+---
+/**
+ * QR code rendered at build time (no JavaScript, no external service).
+ * Colours follow the Figma: off-white modules on Estuary.
+ */
+import QRCode from 'qrcode';
+
+interface Props {
+  url: string;
+  size?: number;
+  label: string;
+  class?: string;
+}
+
+const { url, size = 88, label, class: className } = Astro.props;
+
+const svg = await QRCode.toString(url, {
+  type: 'svg',
+  errorCorrectionLevel: 'M',
+  margin: 2,
+  color: { dark: '#faf4f0', light: '#364b69' },
+});
+// Make the SVG scale to the box and expose it as a single image to assistive tech.
+const markup = svg
+  .replace(/width="\d+"\s*height="\d+"\s*/, '')
+  .replace('<svg ', `<svg width="${size}" height="${size}" role="img" aria-label="${label}" shape-rendering="crispEdges" `);
+---
+
+<div
+  class:list={['shrink-0 overflow-hidden rounded-[4px] bg-estuary', className]}
+  style={`width:${size}px;height:${size}px`}
+  set:html={markup}
+/>

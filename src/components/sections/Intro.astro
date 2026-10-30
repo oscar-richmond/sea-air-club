@@ -1,0 +1,12 @@
+---
+import Button from '@/components/ui/Button.astro';
+import { home } from '@/content/home';
+
+const { intro } = home;
+---
+
+<section class="px-(--gutter) pt-(--section-y) text-center" aria-labelledby="intro-title">
+  <h2 id="intro-title" class="eyebrow text-estuary">{intro.eyebrow}</h2>
+  <p class="mx-auto mt-[18px] max-w-[48.75rem] text-body-l lg:mt-[22px]">{intro.body}</p>
+  <Button opensSignup class="mt-8 lg:mt-10">{intro.cta}</Button>
+</section>

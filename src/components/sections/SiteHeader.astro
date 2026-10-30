@@ -1,0 +1,33 @@
+---
+/**
+ * Top bar over the hero: Instagram (desktop), wordmark, and "Join the list".
+ * Sits absolutely over the hero image so the photo runs to the top edge.
+ */
+import Button from '@/components/ui/Button.astro';
+import { site } from '@/config/site';
+---
+
+<header class="on-dark absolute inset-x-0 top-0 z-20 px-(--gutter) pt-5 text-off-white lg:pt-[30px]">
+  <div class="grid grid-cols-[1fr_auto] items-center gap-4 lg:grid-cols-[1fr_auto_1fr]">
+    <div class="hidden lg:block">
+      {
+        site.instagramUrl && (
+          <a
+            href={site.instagramUrl}
+            class="text-button-s font-medium underline-offset-4 hover:underline"
+            rel="noopener"
+            target="_blank"
+          >
+            Instagram
+          </a>
+        )
+      }
+    </div>
+    <a href="/" class="wordmark justify-self-start lg:justify-self-center" aria-label="Sea Air Club, home"
+      >Sea Air Club</a
+    >
+    <div class="justify-self-end">
+      <Button variant="outline" opensSignup>Join the list</Button>
+    </div>
+  </div>
+</header>

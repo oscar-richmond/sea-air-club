@@ -1,0 +1,36 @@
+---
+/**
+ * Full-bleed hero. Image crop follows the Figma masks:
+ * mobile shows the right of the frame (85% 50%), desktop the bottom (50% 100%).
+ */
+import { Picture } from 'astro:assets';
+import Button from '@/components/ui/Button.astro';
+import { home, images } from '@/content/home';
+
+const { hero } = home;
+const image = images[hero.image];
+---
+
+<section
+  class="on-dark relative isolate flex h-[clamp(35rem,85svh,47.5rem)] items-center justify-center overflow-hidden bg-driftwood px-(--gutter) text-center text-off-white lg:h-[clamp(40rem,min(95svh,62vw),90rem)]"
+  aria-labelledby="hero-title"
+>
+  <Picture
+    src={image.src}
+    alt={image.alt}
+    formats={['avif', 'webp']}
+    widths={[480, 768, 1024, 1280, image.src.width]}
+    sizes="100vw"
+    loading="eager"
+    fetchpriority="high"
+    decoding="async"
+    class="absolute inset-0 -z-20 size-full object-cover object-[85%_50%] md:object-[65%_70%] lg:object-[50%_85%]"
+  />
+  <div class="absolute inset-0 -z-10" style="background: var(--hero-shade)" aria-hidden="true"></div>
+
+  <div class="flex max-w-[68.75rem] flex-col items-center">
+    <p class="eyebrow">{hero.eyebrow}</p>
+    <h1 id="hero-title" class="mt-1.5 text-display lg:mt-0">{hero.title}</h1>
+    <Button opensSignup glow class="mt-8 lg:mt-10">{hero.cta}</Button>
+  </div>
+</section>

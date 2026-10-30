@@ -1,0 +1,21 @@
+---
+/** Confirmation page for sign-ups made without JavaScript. */
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import JoinShell from '@/components/layout/JoinShell.astro';
+import Button from '@/components/ui/Button.astro';
+import Icon from '@/components/ui/Icon.astro';
+import { home } from '@/content/home';
+
+const { success } = home.signup;
+---
+
+<BaseLayout title="You're on the list" noindex>
+  <JoinShell>
+    <div class="flex flex-col gap-[18px] sm:gap-5">
+      <Icon name="check" class="text-estuary" />
+      <h1 class="text-heading-s">{success.title.lead}{' '}<em>{success.title.emphasis}</em></h1>
+      <p class="text-body">{success.body}</p>
+      <Button href="/" class="w-full sm:w-auto sm:self-start">Back to Sea Air Club</Button>
+    </div>
+  </JoinShell>
+</BaseLayout>

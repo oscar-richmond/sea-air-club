@@ -30,7 +30,7 @@ export const site = {
    * The QR code on the page sends phone users straight to the sign-up.
    * UTM tags let us see how many sign-ups came from the QR code.
    */
-  qrPath: '/?utm_source=website&utm_medium=qr&utm_campaign=early-access#join',
+  qrPath: '/join?utm_source=website&utm_medium=qr',
 } as const;
 
 export type Site = typeof site;

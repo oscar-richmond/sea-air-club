@@ -1,0 +1,189 @@
+---
+/**
+ * The early access form and its success state. Used inside the pop-up and on the
+ * standalone /join page. Works without JavaScript (posts to /api/subscribe and
+ * redirects); `signup.ts` upgrades it to an in-place submit with inline errors.
+ */
+import Button from '@/components/ui/Button.astro';
+import Icon from '@/components/ui/Icon.astro';
+import { home } from '@/content/home';
+import { FIELD } from '@/lib/signups/contract';
+
+interface Props {
+  /** Unique prefix so the pop-up and page forms can coexist. */
+  id: string;
+  /** Show close buttons (pop-up only). */
+  closable?: boolean;
+  /** Render the heading as h1 (standalone page) instead of h2 (pop-up). */
+  headingLevel?: 1 | 2;
+}
+
+const { id, closable = false, headingLevel = 2 } = Astro.props;
+const { signup } = home;
+const Heading = headingLevel === 1 ? 'h1' : 'h2';
+const fieldClass =
+  'h-[52px] w-full rounded-(--radius-field) border border-estuary/35 bg-field px-4 text-body text-driftwood placeholder:text-driftwood/50 transition-[border-color,box-shadow] duration-150 hover:border-estuary/60 focus:border-estuary focus:outline-none focus-visible:outline-none focus:ring-2 focus:ring-estuary/25 aria-invalid:border-error aria-invalid:ring-error/20';
+---
+
+<div
+  data-signup-root
+  data-state="form"
+  data-messages={JSON.stringify({ ...signup.errors, submitting: signup.submitting })}
+  class="signup-panel"
+>
+  <!-- Form view -->
+  <div data-view="form" class="flex flex-col gap-[18px] sm:gap-5">
+    <div class="flex items-start gap-4">
+      <Heading id={`${id}-title`} class="flex-1 text-heading-s [text-wrap:wrap] outline-none" tabindex="-1">
+        {signup.title.lead}{' '}<em>{signup.title.emphasis}</em>
+      </Heading>
+      {
+        closable && (
+          <button
+            type="button"
+            class="-mt-1 -mr-2 grid size-10 shrink-0 place-items-center rounded-full text-driftwood transition-colors hover:bg-driftwood/8"
+            data-signup-close
+            aria-label="Close"
+          >
+            <Icon name="close" />
+          </button>
+        )
+      }
+    </div>
+    <p id={`${id}-desc`} class="text-body">{signup.body}</p>
+
+    <p
+      role="alert"
+      class="hidden rounded-(--radius-field) border-l-2 border-error bg-error/6 px-4 py-3 text-small text-error"
+      data-form-error
+    >
+    </p>
+    <noscript>
+      <p id="signup-error" class="signup-noscript-error text-small text-error">
+        {signup.errors.generic}
+      </p>
+    </noscript>
+
+    <form
+      method="post"
+      action="/api/subscribe"
+      class="flex flex-col gap-[18px] sm:gap-5"
+      data-signup-form
+      aria-describedby={`${id}-desc`}
+    >
+      <div class="flex flex-col gap-2">
+        <label for={`${id}-first-name`} class="text-label font-medium">
+          {signup.fields.firstName.label}
+        </label>
+        <input
+          id={`${id}-first-name`}
+          name={FIELD.firstName}
+          type="text"
+          autocomplete="given-name"
+          autocapitalize="words"
+          maxlength="60"
+          placeholder={signup.fields.firstName.placeholder}
+          class={fieldClass}
+          aria-describedby={`${id}-first-name-error`}
+          data-autofocus
+        />
+        <p id={`${id}-first-name-error`} class="hidden text-small text-error" data-field-error={FIELD.firstName}></p>
+      </div>
+
+      <div class="flex flex-col gap-2">
+        <label for={`${id}-email`} class="text-label font-medium">{signup.fields.email.label}</label>
+        <input
+          id={`${id}-email`}
+          name={FIELD.email}
+          type="email"
+          required
+          autocomplete="email"
+          inputmode="email"
+          autocapitalize="off"
+          spellcheck="false"
+          maxlength="254"
+          placeholder={signup.fields.email.placeholder}
+          class={fieldClass}
+          aria-describedby={`${id}-email-error`}
+        />
+        <p id={`${id}-email-error`} class="hidden text-small text-error" data-field-error={FIELD.email}></p>
+      </div>
+
+      <!-- Spam honeypot: hidden from people and assistive tech; bots tend to fill it. -->
+      <div class="absolute -left-[9999px] h-px w-px overflow-hidden" aria-hidden="true">
+        <label for={`${id}-company`}>Company</label>
+        <input id={`${id}-company`} name={FIELD.honeypot} type="text" tabindex="-1" autocomplete="off" />
+      </div>
+      <input type="hidden" name={FIELD.consentVersion} value={signup.consentVersion} />
+      <input type="hidden" name={FIELD.page} value={Astro.url.pathname} data-page />
+
+      <Button type="submit" class="w-full sm:w-auto sm:self-start" data-submit>
+        <span data-submit-label>{signup.submit}</span>
+      </Button>
+
+      <p class="text-small text-driftwood/40">
+        {signup.consent}
+        <a href="/privacy" class="underline underline-offset-2 hover:text-driftwood">{signup.consentLink}</a>
+      </p>
+    </form>
+  </div>
+
+  <!-- Success view -->
+  <div data-view="success" class="flex-col gap-[18px] sm:gap-5" aria-live="polite">
+    <div class="flex items-start justify-between gap-4">
+      <Icon name="check" class="text-estuary" />
+      {
+        closable && (
+          <button
+            type="button"
+            class="-mt-1 -mr-2 grid size-10 shrink-0 place-items-center rounded-full text-driftwood transition-colors hover:bg-driftwood/8"
+            data-signup-close
+            aria-label="Close"
+          >
+            <Icon name="close" />
+          </button>
+        )
+      }
+    </div>
+    <Heading class="text-heading-s outline-none" tabindex="-1" data-success-title>
+      {signup.success.title.lead}{' '}<em>{signup.success.title.emphasis}</em>
+    </Heading>
+    <p
+      class="text-body"
+      data-success-body
+      data-template-name={signup.success.bodyWithName}
+      data-template-plain={signup.success.body}
+    >
+      {signup.success.body}
+    </p>
+    {
+      closable ? (
+        <Button class="w-full sm:w-auto sm:self-start" data-signup-close>
+          {signup.success.done}
+        </Button>
+      ) : (
+        <Button href="/" class="w-full sm:w-auto sm:self-start">
+          Back to Sea Air Club
+        </Button>
+      )
+    }
+  </div>
+</div>
+
+<script>
+  import './signup.ts';
+</script>
+
+<style>
+  .signup-panel [data-view] {
+    display: none;
+  }
+  .signup-panel[data-state='form'] [data-view='form'],
+  .signup-panel[data-state='success'] [data-view='success'] {
+    display: flex;
+  }
+  /* No-JS: the server redirects to /join?error=…#signup-error after a failed post. */
+  .signup-noscript-error:not(:target) {
+    display: none;
+  }
+</style>

@@ -1,0 +1,14 @@
+---
+/** Tag · Preview from Figma: marks images that are visualisations, not photos. */
+interface Props {
+  class?: string;
+}
+const { class: className } = Astro.props;
+---
+
+<span
+  class:list={[
+    'eyebrow inline-flex items-center rounded-[2px] bg-off-white px-2.5 py-[5px] text-driftwood',
+    className,
+  ]}><slot /></span
+>

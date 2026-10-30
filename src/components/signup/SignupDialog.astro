@@ -1,0 +1,93 @@
+---
+/**
+ * The early access pop-up: a native <dialog> (focus trapping, Esc to close and
+ * focus return come from the browser). Bottom sheet on phones, centred modal from 640px.
+ * Opened by any [data-signup-open] link, or by visiting /#join.
+ */
+import SignupPanel from './SignupPanel.astro';
+---
+
+<dialog
+  id="join"
+  class="signup-dialog"
+  aria-labelledby="dialog-title"
+  aria-describedby="dialog-desc"
+  data-signup-dialog
+>
+  <div class="dialog-panel">
+    <div class="mx-auto mb-[18px] h-1 w-10 rounded-full bg-driftwood/25 sm:hidden" aria-hidden="true"></div>
+    <SignupPanel id="dialog" closable />
+  </div>
+</dialog>
+
+<style>
+  .signup-dialog {
+    margin: auto auto 0;
+    padding: 0;
+    width: 100%;
+    max-width: 100%;
+    max-height: 92dvh;
+    border: 0;
+    border-radius: var(--radius-sheet) var(--radius-sheet) 0 0;
+    background: var(--color-off-white);
+    color: var(--color-driftwood);
+    overflow: auto;
+    overscroll-behavior: contain;
+  }
+
+  .dialog-panel {
+    padding: 14px 24px calc(36px + env(safe-area-inset-bottom));
+  }
+
+  .signup-dialog::backdrop {
+    background: rgb(43 37 33 / 0.6);
+  }
+
+  @media (min-width: 640px) {
+    .signup-dialog {
+      margin: auto;
+      width: min(560px, calc(100vw - 48px));
+      max-height: calc(100dvh - 48px);
+      border-radius: var(--radius-button);
+    }
+    .dialog-panel {
+      padding: 48px;
+    }
+  }
+
+  /* Entrance: slide up on phones, fade and settle on larger screens. */
+  .signup-dialog[open] {
+    animation: sheet-in 380ms var(--ease-out-soft);
+  }
+  .signup-dialog[open]::backdrop {
+    animation: backdrop-in 300ms ease-out;
+  }
+  @media (min-width: 640px) {
+    .signup-dialog[open] {
+      animation-name: modal-in;
+      animation-duration: 280ms;
+    }
+  }
+
+  @keyframes sheet-in {
+    from {
+      transform: translateY(100%);
+    }
+  }
+  @keyframes modal-in {
+    from {
+      opacity: 0;
+      transform: translateY(12px) scale(0.98);
+    }
+  }
+  @keyframes backdrop-in {
+    from {
+      opacity: 0;
+    }
+  }
+
+  /* Lock page scroll while the pop-up is open. */
+  :global(html:has(.signup-dialog[open])) {
+    overflow: hidden;
+  }
+</style>
