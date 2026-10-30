@@ -15,7 +15,7 @@ export const GET: APIRoute = ({ site }) => {
   const origin = site ?? new URL(siteConfig.url);
 
   const body = shouldNoindex()
-    ? ['# Preview deployment: not for search engines', 'User-agent: *', 'Disallow: /', '']
+    ? ['# Not open to search engines yet (preview, or before the real domain is live)', 'User-agent: *', 'Disallow: /', '']
     : [
         'User-agent: *',
         'Allow: /',
