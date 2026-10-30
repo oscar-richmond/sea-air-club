@@ -59,7 +59,7 @@ export const home = {
     cta: 'Join the early access list',
     note: 'Unsubscribe any time · Privacy notice',
     qrLabel: ['On your phone?', 'Scan to join'],
-    image: 'exterior-1' satisfies ImageKey,
+    image: 'exterior-3' satisfies ImageKey,
     imageTag: 'Preview',
   },
   signup: {

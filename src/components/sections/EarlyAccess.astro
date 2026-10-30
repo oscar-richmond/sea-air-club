@@ -20,7 +20,7 @@ const qrUrl = new URL(site.qrPath, site.url).href;
   class="lg:grid lg:min-h-[clamp(40rem,54.17vw,60rem)] lg:grid-cols-2"
   aria-labelledby="early-access-title"
 >
-  <div class="relative h-[clamp(26.25rem,107.7vw,35rem)] lg:h-auto">
+  <div class="relative h-[clamp(26.25rem,107.7vw,35rem)] overflow-hidden lg:h-auto">
     <Picture
       src={image.src}
       alt={image.alt}
@@ -29,7 +29,7 @@ const qrUrl = new URL(site.qrPath, site.url).href;
       sizes="(min-width: 1024px) 50vw, 100vw"
       loading="lazy"
       decoding="async"
-      class="absolute inset-0 size-full object-cover"
+      class="absolute inset-0 size-full object-cover object-[25%_50%] lg:origin-left lg:scale-[1.12] lg:object-[0%_50%]"
     />
     <Tag class="absolute top-6 left-6 lg:top-8 lg:left-8">{earlyAccess.imageTag}</Tag>
   </div>

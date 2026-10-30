@@ -40,7 +40,8 @@ export interface SubscribeDeps {
 
 /** Where the no-JavaScript form goes next. No personal data ever goes in these URLs. */
 export function failureLocation(code: SubscribeErrorCode): string {
-  return `${REDIRECT.failure}?error=${code}`;
+  // The fragment shows the error message on /join even without JavaScript (CSS :target).
+  return `${REDIRECT.failure}?error=${code}#signup-error`;
 }
 
 const STATUS: Record<SubscribeErrorCode, number> = {

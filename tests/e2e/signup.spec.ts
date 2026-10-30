@@ -56,14 +56,18 @@ test.describe('early access pop-up', () => {
     await expect(dialog(page)).toBeHidden();
   });
 
-  test('signing up twice still succeeds', async ({ page }) => {
+  test('signing up twice still succeeds, and the pop-up resets in between', async ({ page }) => {
     const email = testEmail('repeat');
+    await page.goto('/');
     for (let i = 0; i < 2; i++) {
-      await page.goto('/#join');
+      await page.locator('header a[data-signup-open]').click();
+      await expect(dialog(page).getByLabel('Email')).toHaveValue('');
       await dialog(page).getByLabel('Email').fill(email);
       await page.waitForTimeout(1600);
       await dialog(page).getByRole('button', { name: 'Join the early access list' }).click();
       await expect(dialog(page).getByRole('heading', { name: "You're on the list" })).toBeVisible();
+      await dialog(page).getByRole('button', { name: 'Done' }).click();
+      await expect(dialog(page)).toBeHidden();
     }
   });
 });

@@ -63,6 +63,6 @@ export type SubscribeResponse =
 /** No-JavaScript fallback redirect targets. */
 export const REDIRECT = {
   success: '/join/thanks',
-  /** `?error=validation|rate_limited|server` is appended. */
+  /** `?error=validation|rate_limited|server#signup-error` is appended. */
   failure: '/join',
 } as const;

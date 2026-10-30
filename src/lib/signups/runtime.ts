@@ -6,10 +6,15 @@ import type { APIContext } from 'astro';
 import { readSignupEnv } from './env';
 import { createExportFailureLimiter, type ExportDeps } from './export';
 import { consoleLogger } from './log';
+import { createRateLimiter } from './rate-limit';
 import { createStore, type SignupStore } from './store';
 import { createSubscribeRateLimiter, type SubscribeDeps } from './subscribe';
 
-const subscribeLimiter = createSubscribeRateLimiter();
+// The local dev server (and the end-to-end tests that run against it) all come from one
+// address, so the per-IP limit is relaxed there. Production uses the real limit.
+const subscribeLimiter = import.meta.env.DEV
+  ? createRateLimiter({ limit: 1000, windowMs: 60_000 })
+  : createSubscribeRateLimiter();
 const exportFailureLimiter = createExportFailureLimiter();
 let store: SignupStore | undefined;
 

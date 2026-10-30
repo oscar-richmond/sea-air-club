@@ -145,14 +145,14 @@ describe('POST /api/subscribe (no-JavaScript form)', () => {
     const { send } = setup();
     const res = await send(formRequest({ email: 'nope@', firstName: 'Alex' }));
     expect(res.status).toBe(303);
-    expect(res.headers.get('location')).toBe('/join?error=validation');
+    expect(res.headers.get('location')).toBe('/join?error=validation#signup-error');
     expect(res.headers.get('location')).not.toMatch(/nope|Alex/);
   });
 
   it('builds failure locations from the contract', () => {
-    expect(failureLocation('validation')).toBe(`${REDIRECT.failure}?error=validation`);
-    expect(failureLocation('rate_limited')).toBe('/join?error=rate_limited');
-    expect(failureLocation('server')).toBe('/join?error=server');
+    expect(failureLocation('validation')).toBe(`${REDIRECT.failure}?error=validation#signup-error`);
+    expect(failureLocation('rate_limited')).toBe('/join?error=rate_limited#signup-error');
+    expect(failureLocation('server')).toBe('/join?error=server#signup-error');
   });
 });
 
@@ -223,7 +223,7 @@ describe('rate limiting', () => {
     await send(formRequest({ email: EMAIL }));
     const res = await send(formRequest({ email: EMAIL }));
     expect(res.status).toBe(303);
-    expect(res.headers.get('location')).toBe('/join?error=rate_limited');
+    expect(res.headers.get('location')).toBe('/join?error=rate_limited#signup-error');
   });
 });
 
@@ -265,7 +265,7 @@ describe('storage failure', () => {
   it('redirects with error=server for the no-JavaScript form', async () => {
     const { send } = setup({ getStore: () => failing });
     const res = await send(formRequest({ email: EMAIL }));
-    expect(res.headers.get('location')).toBe('/join?error=server');
+    expect(res.headers.get('location')).toBe('/join?error=server#signup-error');
   });
 
   it('treats a store that cannot even be created as a server error', async () => {
