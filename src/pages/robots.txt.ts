@@ -7,14 +7,14 @@
  */
 import type { APIRoute } from 'astro';
 import { site as siteConfig } from '@/config/site';
-import { isNonProductionDeploy } from '@/components/seo/deploy-env';
+import { shouldNoindex } from '@/components/seo/deploy-env';
 
 export const prerender = true;
 
 export const GET: APIRoute = ({ site }) => {
   const origin = site ?? new URL(siteConfig.url);
 
-  const body = isNonProductionDeploy()
+  const body = shouldNoindex()
     ? ['# Preview deployment: not for search engines', 'User-agent: *', 'Disallow: /', '']
     : [
         'User-agent: *',

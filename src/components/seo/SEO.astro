@@ -13,7 +13,7 @@
  */
 import { site } from '@/config/site';
 import JsonLd from './JsonLd.astro';
-import { isNonProductionDeploy, previewDeploymentOrigin } from './deploy-env';
+import { previewDeploymentOrigin, shouldNoindex } from './deploy-env';
 
 export interface Props {
   title?: string;
@@ -47,7 +47,7 @@ const path =
 const canonical = new URL(path, siteUrl).href;
 const isHome = path === '/';
 
-const robotsNoindex = noindex || isNonProductionDeploy();
+const robotsNoindex = noindex || shouldNoindex();
 
 // Sharing images resolve against this deployment on previews, so pasted preview links
 // show the card before the real domain is connected. Production uses the canonical domain.

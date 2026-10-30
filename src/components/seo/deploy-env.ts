@@ -12,6 +12,14 @@ export function isNonProductionDeploy(): boolean {
 }
 
 /**
+ * Keep search engines out: on previews, and on production while SITE_NOINDEX=true
+ * (set while the site runs on its vercel.app address before the real domain is connected).
+ */
+export function shouldNoindex(): boolean {
+  return isNonProductionDeploy() || process.env.SITE_NOINDEX === 'true';
+}
+
+/**
  * Origin of this particular deployment on preview builds (e.g. the vercel.app URL),
  * so sharing images resolve on preview links before the real domain is live.
  * Returns null on production and locally.
