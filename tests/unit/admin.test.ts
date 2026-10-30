@@ -4,6 +4,7 @@ import { BOM } from '../../src/lib/signups/csv';
 import {
   createExportFailureLimiter,
   handleExport,
+  isTestEmail,
   type ExportDeps,
 } from '../../src/lib/signups/export';
 import { createMemoryStore } from '../../src/lib/signups/store';
@@ -101,7 +102,9 @@ describe('GET /api/admin/signups.csv', () => {
 
   it('returns the CSV with download headers', async () => {
     const { get } = await setup();
-    const res = await get('/api/admin/signups.csv', { authorization: basic('admin', 'test') });
+    const res = await get('/api/admin/signups.csv?include_tests=1', {
+      authorization: basic('admin', 'test'),
+    });
     expect(res.status).toBe(200);
     expect(res.headers.get('content-type')).toBe('text/csv; charset=utf-8');
     expect(res.headers.get('content-disposition')).toBe(
@@ -119,10 +122,22 @@ describe('GET /api/admin/signups.csv', () => {
     expect(lines[2]).toMatch(/^bob@example\.com,'@Bob,/);
   });
 
+  it('leaves reserved test addresses out unless ?include_tests=1', async () => {
+    const { get } = await setup();
+    const auth = { authorization: basic('admin', 'test') };
+    const lines = (await (await get('/api/admin/signups.csv', auth)).text()).trimEnd().split('\r\n');
+    expect(lines).toHaveLength(1); // header only: every seeded record is @example.com
+    expect(isTestEmail('qa+1@example.com')).toBe(true);
+    expect(isTestEmail('someone@mail.example.org')).toBe(true);
+    expect(isTestEmail('x@foo.test')).toBe(true);
+    expect(isTestEmail('guest@gmail.com')).toBe(false);
+    expect(isTestEmail('hello@examples.com')).toBe(false);
+  });
+
   it('filters with ?since=YYYY-MM-DD', async () => {
     const { get } = await setup();
     const auth = { authorization: basic('admin', 'test') };
-    const res = await get('/api/admin/signups.csv?since=2026-11-05', auth);
+    const res = await get('/api/admin/signups.csv?since=2026-11-05&include_tests=1', auth);
     const lines = (await res.text()).trimEnd().split('\r\n');
     expect(lines).toHaveLength(2);
     expect(lines[1]).toMatch(/^bob@example\.com/);

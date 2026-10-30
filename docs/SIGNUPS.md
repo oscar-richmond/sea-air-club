@@ -239,6 +239,7 @@ pnpm test                # unit tests: validation, spam, storage, CSV, auth, rat
 ```
 
 - Use `@example.com` addresses for every test, never a real person's email.
+- The CSV export leaves out addresses on reserved test domains (`example.com`, `example.org`, `example.net`, and anything ending `.test`, `.invalid`, `.example` or `.localhost`), so test sign-ups made on the live site never reach the ResNexus import. Add `?include_tests=1` to the export URL to see them.
 - The memory store is shared across reloads of the dev server and cleared when it stops.
 
 ## 10. API reference (for the pop-up and `/join`)

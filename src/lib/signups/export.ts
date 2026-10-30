@@ -61,7 +61,11 @@ export async function handleExport(request: Request, deps: ExportDeps): Promise<
     });
   }
 
-  const since = parseSince(new URL(request.url).searchParams.get('since'));
+  const params = new URL(request.url).searchParams;
+  const since = parseSince(params.get('since'));
+  // Test sign-ups use reserved domains (example.com, .test, .invalid); leave them out of the
+  // ResNexus import unless asked for with ?include_tests=1.
+  const includeTests = params.get('include_tests') === '1';
   if (since === null) {
     return text('Invalid "since" date. Use YYYY-MM-DD, e.g. ?since=2026-11-01', 400);
   }
@@ -74,7 +78,9 @@ export async function handleExport(request: Request, deps: ExportDeps): Promise<
     return text('Could not read the sign-ups. Please try again in a minute.', 500);
   }
 
-  const rows = filterSince(records, since);
+  const rows = filterSince(records, since).filter(
+    (record) => includeTests || !isTestEmail(record.email),
+  );
   logger.info('Sign-ups exported', { rows: rows.length, since: since?.toISOString() ?? null });
 
   return new Response(toCsv(rows), {
@@ -86,4 +92,13 @@ export async function handleExport(request: Request, deps: ExportDeps): Promise<
       'X-Robots-Tag': 'noindex',
     },
   });
+}
+
+/** Addresses on domains reserved for testing (RFC 2606/6761). They can never be real people. */
+export function isTestEmail(email: string): boolean {
+  const domain = email.slice(email.lastIndexOf('@') + 1).toLowerCase();
+  return (
+    /^(.+\.)?example\.(com|org|net)$/.test(domain) ||
+    /\.(test|invalid|example|localhost)$/.test(domain)
+  );
 }
