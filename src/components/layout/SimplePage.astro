@@ -1,0 +1,55 @@
+---
+/**
+ * Minimal page shell for standalone pages (privacy notice, 404): the wordmark linking
+ * home, the page content, and a small footer line. SEO props pass through to BaseLayout.
+ */
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import type { Props as SEOProps } from '@/components/seo/SEO.astro';
+import { site } from '@/config/site';
+
+type Props = SEOProps;
+
+const isPrivacy = Astro.url.pathname.replace(/(\.html|\/)$/, '') === '/privacy';
+---
+
+<BaseLayout {...Astro.props}>
+  <div class="flex min-h-dvh flex-col">
+    <header class="border-b border-driftwood/10">
+      <div class="flex justify-center px-(--gutter) py-6 md:py-8">
+        <a
+          href="/"
+          class="wordmark font-serif -mr-[0.16em] text-driftwood transition-opacity duration-200 hover:opacity-70"
+        >
+          {site.name}
+        </a>
+      </div>
+    </header>
+
+    <main id="main" class="flex flex-1 flex-col">
+      <slot />
+    </main>
+
+    <footer class="border-t border-driftwood/10 px-(--gutter) py-8 text-small text-driftwood/75">
+      <p class="flex flex-col items-center gap-y-1 text-center sm:flex-row sm:justify-center sm:gap-x-3">
+        <span>
+          &copy; {site.copyrightYear}
+          {site.name}
+          <span class="px-2" aria-hidden="true">
+            ·
+          </span>
+          {site.location.locality}, {site.location.region}
+        </span>
+        <span class="hidden sm:inline" aria-hidden="true">
+          ·
+        </span>
+        <a
+          href="/privacy"
+          class="underline decoration-driftwood/30 underline-offset-[0.2em] hover:decoration-driftwood"
+          aria-current={isPrivacy ? 'page' : undefined}
+        >
+          Privacy notice
+        </a>
+      </p>
+    </footer>
+  </div>
+</BaseLayout>

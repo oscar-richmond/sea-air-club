@@ -1,0 +1,14 @@
+---
+/**
+ * Renders structured data as a JSON-LD script block.
+ * `<` is escaped so a value containing "</script>" can't end the block early.
+ */
+interface Props {
+  data: Record<string, unknown> | Record<string, unknown>[];
+}
+
+const { data } = Astro.props;
+const json = JSON.stringify(data).replace(/</g, '\\u003c');
+---
+
+<script is:inline type="application/ld+json" set:html={json} />
