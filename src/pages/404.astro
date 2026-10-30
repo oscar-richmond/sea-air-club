@@ -1,0 +1,27 @@
+---
+/**
+ * Not-found page. Vercel serves /404.html with a 404 status for unmatched paths
+ * (see the adapter's routes in .vercel/output/config.json).
+ */
+import SimplePage from '@/components/layout/SimplePage.astro';
+import Button from '@/components/ui/Button.astro';
+---
+
+<SimplePage title="Page not found" description="Sorry, we can't find that page." noindex>
+  <section
+    class="flex flex-1 flex-col items-center justify-center px-(--gutter) py-(--section-y) text-center"
+    aria-labelledby="not-found-title"
+  >
+    <p class="eyebrow text-estuary">Page not found</p>
+    <h1 id="not-found-title" class="mt-5 max-w-[14ch] font-serif text-heading">
+      This page has drifted out to sea
+    </h1>
+    <p class="mt-6 max-w-[34rem] text-body-l">
+      Sorry, we can't find the page you were looking for. It may have moved, or the link may have a
+      small typo.
+    </p>
+    <Button href="/" class="mt-10">
+      Back to the home page
+    </Button>
+  </section>
+</SimplePage>
