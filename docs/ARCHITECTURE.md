@@ -22,6 +22,7 @@ This repo is the Sea Air Club website. It starts as the holding page (the Figma 
 - Routes that need a server set `export const prerender = false`:
   - `POST /api/subscribe`: sign-ups.
   - `GET /api/admin/signups.csv`: password-protected CSV export for ResNexus import.
+  - `GET /api/cron/signup-digest`: the Mon/Wed/Fri digest of new sign-ups, called by Vercel Cron (`vercel.json`).
 - Images are optimised at build time with sharp (AVIF and WebP, several widths).
 
 ## Directory layout
@@ -40,14 +41,15 @@ src/
     signup/               Sign-up form, pop-up dialog and its script
     seo/                  <head> metadata, JSON-LD
   lib/
-    signups/              Contract, validation, storage adapters, CSV export
+    signups/              Contract, validation, storage adapters, CSV export, welcome hook, digest
+    email/                Resend client (production-only sender) and email templates
     booking/              (full site) ResNexus booking links and availability
   pages/
     index.astro           Holding page
     join.astro            Standalone sign-up page (no-JS fallback, Instagram bio link)
     join/thanks.astro
     privacy.astro, 404.astro
-    api/subscribe.ts, api/admin/signups.csv.ts
+    api/subscribe.ts, api/admin/signups.csv.ts, api/cron/signup-digest.ts
 docs/                     This file, the build plan, and runbooks
 tests/unit, tests/e2e
 ```
@@ -64,12 +66,12 @@ Colours, type and spacing come from the Figma file "Sea Air Club — Holding Pag
 
 1. Any "Join" button is a link to `/join` marked `data-signup-open`. With JavaScript it opens the pop-up instead (a native `<dialog>`). Visiting `/#join` also opens it. The QR code points to the standalone `/join` page (`/join?utm_source=website&utm_medium=qr`), which is static and shows server errors without JavaScript through a `#signup-error-<code>` fragment.
 2. The form POSTs to `/api/subscribe` (JSON from the pop-up, a normal form post without JavaScript).
-3. The server validates, applies spam checks (honeypot, minimum time on form, rate limit), normalises the email and stores the record. It also forwards to an optional webhook (`SIGNUP_WEBHOOK_URL`).
-4. Freddie or Vicki downloads `/api/admin/signups.csv` (password in `ADMIN_EXPORT_PASSWORD`) and imports it into the ResNexus "Pre launch early access" interest group.
+3. The server validates, applies spam checks (honeypot, minimum time on form, rate limit), normalises the email and stores the record. It also forwards to an optional webhook (`SIGNUP_WEBHOOK_URL`) and sends new sign-ups the "You're on the list" email through Resend (production only).
+4. Every Monday, Wednesday and Friday at 8am UTC, Vercel Cron emails the studio the new sign-ups with a CSV attached. That CSV (or the full export at `/api/admin/signups.csv`, password in `ADMIN_EXPORT_PASSWORD`) is imported into the ResNexus "Pre launch early access" interest group under Guests → Import.
 
 **Stored per sign-up:** email, first name, consent wording version, timestamps, UTM tags and landing page. IP addresses are not stored.
 
-**ResNexus.** There's no public API confirmed yet; the question is on the Mon 2 Nov call with Vicki. If an API exists, a `resnexus` destination is added next to the webhook in `src/lib/signups/` and sign-ups flow straight in. No page changes are needed.
+**ResNexus.** Vicki confirmed on 2 Nov that there's no API for adding contacts, so the import is manual, fed by the digest CSV. If an API appears later, a `resnexus` destination is added next to the webhook in `src/lib/signups/` and sign-ups flow straight in. No page changes are needed.
 
 ## Full site: how this scales
 

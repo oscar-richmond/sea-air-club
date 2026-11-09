@@ -14,6 +14,7 @@ import type { SignupStore } from './store/types';
 import type { Logger } from './types';
 import { cleanFirstName, LIMITS, parseSubmission } from './validation';
 import { sendWebhook, type WebhookSettings } from './webhook';
+import type { WelcomeHook } from './welcome';
 
 export type SubscribeErrorCode = 'validation' | 'rate_limited' | 'server';
 
@@ -39,6 +40,8 @@ export interface SubscribeDeps {
   clientAddress?: string | null;
   fetch?: typeof fetch;
   now?: () => Date;
+  /** Sends the welcome email to new sign-ups (no-op when email isn't configured). */
+  welcome?: WelcomeHook;
 }
 
 /** Where the no-JavaScript form goes next. No personal data ever goes in these URLs. */
@@ -145,11 +148,17 @@ export async function handleSubscribe(request: Request, deps: SubscribeDeps): Pr
     ...(spam ? { flagged: spam } : {}),
   });
 
-  if (!result.record.flagged) await sendWebhook(
-    { event: result.created ? 'signup.created' : 'signup.updated', signup: result.record },
-    deps.webhook,
-    { logger, ...(deps.fetch ? { fetch: deps.fetch } : {}) },
-  );
+  // Webhook and welcome email run side by side; neither can fail the sign-up.
+  await Promise.allSettled([
+    result.record.flagged
+      ? Promise.resolve()
+      : sendWebhook(
+          { event: result.created ? 'signup.created' : 'signup.updated', signup: result.record },
+          deps.webhook,
+          { logger, ...(deps.fetch ? { fetch: deps.fetch } : {}) },
+        ),
+    deps.welcome?.(result.record, result.created) ?? Promise.resolve(),
+  ]);
 
   // Echo only the name typed in this submission. Returning the stored name would tell
   // anyone who types a known email address that person's first name.

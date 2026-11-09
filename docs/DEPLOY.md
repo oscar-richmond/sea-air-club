@@ -2,7 +2,7 @@
 
 How the Sea Air Club site is set up on Vercel, connected to seaairclub.co.uk, and checked before go-live. Sign-up storage and the CSV export are covered in more detail in [SIGNUPS.md](SIGNUPS.md).
 
-## Current setup (30 October 2026)
+## Current setup (9 November 2026)
 
 | What | Where |
 | --- | --- |
@@ -12,6 +12,7 @@ How the Sea Air Club site is set up on Vercel, connected to seaairclub.co.uk, an
 | Deployment Protection | Vercel Authentication **off**, so links open for anyone, including Freddie, without a Vercel login |
 | Sign-up storage | Private Blob store `sea-air-club-signups` (London). Its token is on **Production only**, so previews and local dev never touch the real list |
 | Search engines | Kept out while on vercel.app: `SITE_NOINDEX=true` on Production adds `noindex` and `Disallow: /` |
+| Email | Resend (Oscar's account). Welcome email to each new sign-up, plus a digest of new sign-ups every Mon, Wed and Fri at 8am UTC (Vercel Cron, `vercel.json`). Production only. See [SIGNUPS.md §3.5](SIGNUPS.md#35-welcome-email-and-the-monwedfri-digest-resend) |
 
 Environment variables currently set:
 
@@ -22,6 +23,12 @@ Environment variables currently set:
 | `SIGNUP_STORE` | `blob` | Production |
 | `BLOB_READ_WRITE_TOKEN` | added by the Blob store | Production |
 | `ADMIN_EXPORT_PASSWORD` | set (sensitive, given to Oscar separately) | Production |
+| `RESEND_API_KEY` | Resend key `sea-air-club-website`, sending only (sensitive) | Production |
+| `CRON_SECRET` | set (sensitive) | Production |
+| `SIGNUP_DIGEST_TO` | `oscar@selfhood-studios.com` | Production |
+| `SIGNUP_DIGEST_FROM` | `Sea Air Club website <signups@selfhood-studios.com>` | Production |
+| `WELCOME_EMAIL_FROM` | `Sea Air Club <hello@seaairclub.co.uk>` (sends once the domain is verified in Resend) | Production |
+| `WELCOME_EMAIL_REPLY_TO` | not set yet: waiting for the Sea Air Club inbox address | |
 
 Preview deployments use the in-memory store (sign-ups look like they work but aren't kept) and have the CSV export switched off. Test sign-ups on the live link with `@example.com` addresses: the export leaves them out automatically.
 
@@ -62,8 +69,9 @@ Set these in **Settings → Environment Variables**. They match [`.env.example`]
 | `ADMIN_EXPORT_PASSWORD` | a long random password     | optional | Protects `/api/admin/signups.csv` (username `admin`). If empty, the export is switched off.                                                                                       |
 | `SIGNUP_WEBHOOK_URL`    | optional                   |          | Every new sign-up is also POSTed here (Zapier, Make, a ResNexus connector).                                                                                                       |
 | `SIGNUP_WEBHOOK_SECRET` | optional                   |          | Shared secret sent with the webhook.                                                                                                                                              |
+| `RESEND_API_KEY`, `WELCOME_EMAIL_FROM`, `WELCOME_EMAIL_REPLY_TO`, `SIGNUP_DIGEST_FROM`, `SIGNUP_DIGEST_TO`, `CRON_SECRET` | see [SIGNUPS.md §3.4](SIGNUPS.md#34-environment-variables-at-a-glance) | not set | Welcome email and the Mon/Wed/Fri digest. Only production ever sends email. |
 
-Mark the password and webhook secret as **Sensitive**. Redeploy after changing variables: they're read at build and request time, not live.
+Mark the password, webhook secret, `RESEND_API_KEY` and `CRON_SECRET` as **Sensitive**. Redeploy after changing variables: they're read at build and request time, not live.
 
 ## 3. Connect the private Blob store
 
@@ -107,6 +115,8 @@ Production builds get `Allow: /` plus the `Sitemap:` line. Nothing to configure.
 5. Wait for both domains to show **Valid Configuration**. Vercel issues the HTTPS certificates automatically.
 
 Keep DNS at the registrar rather than moving nameservers to Vercel unless you copy every existing record across first. Email for the domain (MX, SPF, DKIM records) depends on them.
+
+While you're in the DNS settings, add the three Resend records too (TXT `resend._domainkey`, MX and TXT on `send`; values in [SIGNUPS.md §3.5](SIGNUPS.md#35-welcome-email-and-the-monwedfri-digest-resend)), then press **Verify** in Resend. That switches on the welcome email.
 
 ## Security headers
 
@@ -153,6 +163,7 @@ After the domain is live:
 - [ ] **HTTPS and redirect.** `https://seaairclub.co.uk` loads. `http://` and `https://www.` both redirect to it.
 - [ ] **Sign-up.** Join with a real address from a phone, both through the pop-up and with JavaScript turned off (`/join`). Check that a repeat sign-up doesn't create a duplicate.
 - [ ] **CSV export.** Download `/api/admin/signups.csv` (username `admin`). Check the test sign-up is there with its UTM tags, then delete the test entries.
+- [ ] **Emails.** seaairclub.co.uk shows **Verified** in Resend → Domains, and the real-address test sign-up above received the welcome email (check spam too). The digest dry run (`?dry=1`, SIGNUPS.md §3.5) answers with a count.
 - [ ] **Sharing preview.** Paste `https://seaairclub.co.uk` into an Open Graph debugger: [opengraph.xyz](https://www.opengraph.xyz), the [Facebook Sharing Debugger](https://developers.facebook.com/tools/debug/) (use **Scrape Again** to clear any old cache) and the [LinkedIn Post Inspector](https://www.linkedin.com/post-inspector/). Then send the link in WhatsApp or iMessage. The card should show the cabin image, "Sea Air Club · Coming soon to Salcombe" and the description.
 - [ ] **Search engines.** `https://seaairclub.co.uk/robots.txt` shows `Allow: /` and the `Sitemap:` line, and the home page has no `noindex` tag.
 - [ ] **Search Console.** Add a **Domain** property for `seaairclub.co.uk` (verify with the DNS TXT record), submit `https://seaairclub.co.uk/sitemap-index.xml` and request indexing of the home page.

@@ -46,6 +46,15 @@ export default defineConfig({
       // Password for the CSV export used to import sign-ups into ResNexus.
       // If unset, the export endpoint is disabled.
       ADMIN_EXPORT_PASSWORD: envField.string({ context: 'server', access: 'secret', optional: true }),
+      // Email through Resend: the welcome email to each new sign-up, and the Monday,
+      // Wednesday and Friday digest of new sign-ups to the studio. See docs/SIGNUPS.md.
+      RESEND_API_KEY: envField.string({ context: 'server', access: 'secret', optional: true }),
+      WELCOME_EMAIL_FROM: envField.string({ context: 'server', access: 'secret', optional: true }),
+      WELCOME_EMAIL_REPLY_TO: envField.string({ context: 'server', access: 'secret', optional: true }),
+      SIGNUP_DIGEST_FROM: envField.string({ context: 'server', access: 'secret', optional: true }),
+      SIGNUP_DIGEST_TO: envField.string({ context: 'server', access: 'secret', optional: true }),
+      // Vercel Cron sends this as a bearer token; the digest route rejects anything else.
+      CRON_SECRET: envField.string({ context: 'server', access: 'secret', optional: true }),
     },
   },
   vite: {

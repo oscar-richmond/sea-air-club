@@ -9,7 +9,7 @@
 import SimplePage from '@/components/layout/SimplePage.astro';
 import { site } from '@/config/site';
 
-const LAST_UPDATED = { iso: '2026-10-30', label: '30 October 2026' };
+const LAST_UPDATED = { iso: '2026-11-09', label: '9 November 2026' };
 
 // Visible but quiet marker for details still to be confirmed.
 const tbc =
@@ -74,6 +74,7 @@ const prose = [
         <h2>Why we use it, and our lawful basis</h2>
         <p>We use your details to:</p>
         <ul>
+          <li>send you one email confirming you've joined the list</li>
           <li>
             email you about Sea Air Club: launch dates, booking access and exclusive opening offers
           </li>
@@ -99,10 +100,14 @@ const prose = [
             <strong>ResNexus</strong> is the booking and guest system we use for the cabins. We
             import the early access list into its email marketing tool to send you our emails.
           </li>
+          <li>
+            <strong>Resend</strong> sends the email confirming you've joined. It handles your email
+            address and first name only to deliver that message.
+          </li>
         </ul>
         <!-- prettier-ignore -->
         <p>
-          Both companies are based in the United States, so your details may be accessed from or
+          All three companies are based in the United States, so your details may be accessed from or
           stored outside the UK. Where that happens, they're protected by
           <span class={tbc} data-tbc>[transfer safeguard to be confirmed]</span>, as UK data
           protection law requires.

@@ -5,6 +5,12 @@
  */
 import {
   ADMIN_EXPORT_PASSWORD,
+  CRON_SECRET,
+  RESEND_API_KEY,
+  SIGNUP_DIGEST_FROM,
+  SIGNUP_DIGEST_TO,
+  WELCOME_EMAIL_FROM,
+  WELCOME_EMAIL_REPLY_TO,
   SIGNUP_STORE,
   SIGNUP_WEBHOOK_SECRET,
   SIGNUP_WEBHOOK_URL,
@@ -21,6 +27,13 @@ export interface SignupEnv {
   adminPassword: string | undefined;
   /** 'production', 'preview' or 'development' on Vercel; unset locally. */
   vercelEnv: string | undefined;
+  resendApiKey: string | undefined;
+  welcomeFrom: string | undefined;
+  welcomeReplyTo: string | undefined;
+  digestFrom: string | undefined;
+  /** Comma-separated. */
+  digestTo: string | undefined;
+  cronSecret: string | undefined;
 }
 
 /**
@@ -41,5 +54,11 @@ export function readSignupEnv(): SignupEnv {
     webhookSecret: SIGNUP_WEBHOOK_SECRET || undefined,
     adminPassword: ADMIN_EXPORT_PASSWORD || undefined,
     vercelEnv: process.env.VERCEL_ENV || undefined,
+    resendApiKey: RESEND_API_KEY || undefined,
+    welcomeFrom: WELCOME_EMAIL_FROM || undefined,
+    welcomeReplyTo: WELCOME_EMAIL_REPLY_TO || undefined,
+    digestFrom: SIGNUP_DIGEST_FROM || undefined,
+    digestTo: SIGNUP_DIGEST_TO || undefined,
+    cronSecret: CRON_SECRET || undefined,
   };
 }
