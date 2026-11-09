@@ -31,6 +31,14 @@
       ]
     }
   ],
+  "redirects": [
+    {
+      "source": "/((?!api/).*)",
+      "has": [{ "type": "host", "value": "sea-air-club.vercel.app" }],
+      "destination": "https://seaairclub.co.uk/$1",
+      "permanent": true
+    }
+  ],
   "crons": [
     {
       "path": "/api/cron/signup-digest",

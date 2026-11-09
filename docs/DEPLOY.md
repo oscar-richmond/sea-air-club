@@ -8,18 +8,19 @@ How the Sea Air Club site is set up on Vercel, connected to seaairclub.co.uk, an
 | --- | --- |
 | Repository | `oscar-richmond/sea-air-club` (private). Pushes to `main` deploy to production; other branches get preview URLs. |
 | Vercel project | `sea-air-club` in "oscar-richmond's projects", functions in London (`lhr1`), Node 24.x |
-| Live link (pre-domain) | https://sea-air-club.vercel.app |
+| Live site | **https://seaairclub.co.uk** (live since 9 Nov 2026). `www.` redirects to it (308, set on the domain in Vercel). Pages on `sea-air-club.vercel.app` redirect to it too (`vercel.json`); its `/api/` routes don't, so cron jobs and scripts still work there |
+| DNS | Stays at GoDaddy (Freddie's account). Apex `A` records `216.150.1.1` and `216.150.16.1`, `www` `CNAME 7f5fdce59d5ff1b4.vercel-dns-016.com`, plus the four Resend records. The Google Workspace email records (MX, SPF, DKIM, DMARC) are untouched. What was there before is under "Switching to seaairclub.co.uk" below |
 | Deployment Protection | Vercel Authentication **off**, so links open for anyone, including Freddie, without a Vercel login |
 | Sign-up storage | Private Blob store `sea-air-club-signups` (London). Its token is on **Production only**, so previews and local dev never touch the real list |
-| Search engines | Kept out while on vercel.app: `SITE_NOINDEX=true` on Production adds `noindex` and `Disallow: /` |
+| Search engines | Allowed since go-live (`SITE_NOINDEX=false`). Setting it back to `true` and redeploying adds `noindex` and `Disallow: /` again |
 | Email | Resend (Oscar's account). Welcome email to each new sign-up, plus a digest of new sign-ups every Mon, Wed and Fri at 8am UTC (Vercel Cron, `vercel.json`). Production only. See [SIGNUPS.md §3.5](SIGNUPS.md#35-welcome-email-and-the-monwedfri-digest-resend) |
 
 Environment variables currently set:
 
 | Variable | Value | Environments |
 | --- | --- | --- |
-| `SITE_URL` | `https://sea-air-club.vercel.app` | Production, Preview |
-| `SITE_NOINDEX` | `true` | Production |
+| `SITE_URL` | `https://seaairclub.co.uk` | Production, Preview |
+| `SITE_NOINDEX` | `false` | Production |
 | `SIGNUP_STORE` | `blob` | Production |
 | `BLOB_READ_WRITE_TOKEN` | added by the Blob store | Production |
 | `ADMIN_EXPORT_PASSWORD` | set (sensitive, given to Oscar separately) | Production |
@@ -33,12 +34,14 @@ Environment variables currently set:
 
 Preview deployments use the in-memory store (sign-ups look like they work but aren't kept) and have the CSV export switched off. Test sign-ups on the live link with `@example.com` addresses: the export leaves them out automatically.
 
-### Switching to seaairclub.co.uk
+### Switching to seaairclub.co.uk (done 9 Nov 2026)
 
-1. Add the domain and DNS records (section 6 below).
-2. Change `SITE_URL` to `https://seaairclub.co.uk` and delete `SITE_NOINDEX`.
-3. Redeploy production, then run the go-live checklist at the end of this file. The QR code, canonical tags, sitemap and sharing image all follow `SITE_URL`.
-4. Keep `sea-air-club.vercel.app` redirecting to the real domain: in Domains, edit it and set **Redirect to `seaairclub.co.uk`**.
+1. Added `seaairclub.co.uk` and `www.seaairclub.co.uk` (redirect to the apex, 308) in Vercel.
+2. At GoDaddy, replaced the "WebsiteBuilder Site" `A @` record (GoDaddy's "Launching Soon" placeholder, `13.248.243.5` / `76.223.105.230`) with Vercel's two addresses, and pointed `CNAME www` (previously `seaairclub.co.uk.`) at Vercel. No domain forwarding was set up. Added the Resend records at the same time.
+3. Changed `SITE_URL` to `https://seaairclub.co.uk` and `SITE_NOINDEX` to `false`, and added the `vercel.app` page redirect in `vercel.json`.
+4. Redeployed production. The QR code, canonical tags, sitemap and sharing image all follow `SITE_URL`.
+
+To undo it in an emergency, put the old `A @` and `CNAME www` values above back at GoDaddy.
 
 ## 1. Create the Vercel project
 
