@@ -131,8 +131,9 @@ Both are sent through [Resend](https://resend.com), from Oscar's account (domain
   | TXT | `resend._domainkey` | the DKIM key shown in Resend → Domains → seaairclub.co.uk | |
   | MX | `send` | `feedback-smtp.eu-west-1.amazonses.com` | 10 |
   | TXT | `send` | `v=spf1 include:amazonses.com ~all` | |
+  | CNAME | `rsend` | `send.forge.rmta.net` | |
 
-  These live on the `send` and `resend._domainkey` subdomains, so they don't affect the domain's normal email or the website records.
+  These live on the `send`, `rsend` and `resend._domainkey` subdomains, so they don't affect the domain's normal email or the website records.
 
 **Digest** (`src/lib/signups/digest.ts`, route `GET /api/cron/signup-digest`)
 - `vercel.json` schedules it for `0 8 * * 1,3,5`: Monday, Wednesday and Friday at 8am UTC (8am in winter, 9am in summer UK time). Vercel may start it any time within that hour.

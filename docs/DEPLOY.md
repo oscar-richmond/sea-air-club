@@ -116,7 +116,7 @@ Production builds get `Allow: /` plus the `Sitemap:` line. Nothing to configure.
 
 Keep DNS at the registrar rather than moving nameservers to Vercel unless you copy every existing record across first. Email for the domain (MX, SPF, DKIM records) depends on them.
 
-While you're in the DNS settings, add the three Resend records too (TXT `resend._domainkey`, MX and TXT on `send`; values in [SIGNUPS.md §3.5](SIGNUPS.md#35-welcome-email-and-the-monwedfri-digest-resend)), then press **Verify** in Resend. That switches on the welcome email.
+While you're in the DNS settings, add the four Resend records too (TXT `resend._domainkey`, MX and TXT on `send`, CNAME `rsend`; values in [SIGNUPS.md §3.5](SIGNUPS.md#35-welcome-email-and-the-monwedfri-digest-resend)), then press **Verify** in Resend. That switches on the welcome email.
 
 ## Security headers
 
