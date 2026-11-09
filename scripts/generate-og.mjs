@@ -142,7 +142,7 @@ const html = /* html */ `<!doctype html>
   <div class="content">
     <div class="wordmark serif">Sea Air Club</div>
     <div class="centre">
-      <p class="eyebrow">Three cabins · Salcombe, Devon</p>
+      <p class="eyebrow">Two cabins · Salcombe, Devon</p>
       <h1 class="serif">Coming soon to Salcombe</h1>
     </div>
   </div>

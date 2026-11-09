@@ -24,7 +24,7 @@ export const site = {
     defaultTitle: 'Sea Air Club · Coming soon to Salcombe',
     titleTemplate: '%s · Sea Air Club',
     description:
-      'Three cabins on the edge of Salcombe, Devon, opening soon. Join the early access list to be first to hear about launch dates, booking access and exclusive opening offers.',
+      'Two cabins on the edge of Salcombe, Devon, opening soon. Join the early access list to be first to hear about launch dates, booking access and exclusive opening offers.',
   },
   /**
    * The QR code on the page sends phone users straight to the sign-up.

@@ -1,6 +1,6 @@
 # Sea Air Club
 
-Website for Sea Air Club: three cabins near Salcombe, Devon. Built with Astro 7, Tailwind CSS 4 and Vercel.
+Website for Sea Air Club: two cabins near Salcombe, Devon. Built with Astro 7, Tailwind CSS 4 and Vercel.
 
 ## Run it
 

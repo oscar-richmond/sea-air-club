@@ -7,11 +7,12 @@ How the early access sign-ups work, how to set them up on Vercel, and how to get
 1. The pop-up (or the `/join` page without JavaScript) posts the form to `POST /api/subscribe`.
 2. The server runs its checks, in order:
    - **Origin.** The post must come from this site. Posts from other sites get a 403.
-   - **Rate limit.** 5 attempts per 10 minutes per IP address.
-   - **Spam.** Three checks. Spam gets a normal "thanks" but is thrown away, so bots learn nothing:
+   - **Rate limit.** 30 attempts per 10 minutes per IP address.
+   - **Spam.** Two checks. A hit still gets a normal "thanks" (bots learn nothing) and is saved, but marked as flagged: no webhook, and left out of the CSV unless you add `?include_flagged=1`:
      - the hidden honeypot field is filled in;
-     - the form was submitted less than 1.5 seconds after it opened;
-     - the first name contains a link.
+     - the form was submitted less than 0.8 seconds after it opened.
+
+     A first name containing a link (or an email typed in the name box) keeps the sign-up and drops the name.
    - **Validation.** The email is required and must look real. The first name is optional, cleaned, and at most 60 characters.
 3. The sign-up is saved as one private file per email address. A repeat sign-up updates that file rather than adding a second one.
 4. If a webhook is set up, the sign-up is also posted there (section 6).

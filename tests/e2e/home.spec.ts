@@ -4,7 +4,7 @@ test('home page renders the holding page sections', async ({ page }) => {
   await page.goto('/');
   await expect(page.getByRole('heading', { level: 1, name: 'Coming soon to Salcombe' })).toBeVisible();
   await expect(page.getByRole('heading', { name: 'A coastal escape' })).toBeVisible();
-  await expect(page.getByRole('heading', { name: 'Three cabins' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Two cabins' })).toBeVisible();
   await expect(page.getByRole('heading', { name: /Slow mornings/ })).toBeVisible();
   await expect(page.getByRole('heading', { name: /Join the early access list/ }).first()).toBeVisible();
   await expect(page.getByRole('contentinfo')).toContainText('Salcombe, Devon');

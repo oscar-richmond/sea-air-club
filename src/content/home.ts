@@ -10,21 +10,21 @@ import { images, type ImageKey } from './images';
 
 export const home = {
   hero: {
-    eyebrow: 'Three cabins · Salcombe, Devon',
+    eyebrow: 'Two cabins · Salcombe, Devon',
     title: 'Coming soon to Salcombe',
     cta: 'Join the early access list',
     image: 'exterior-1' satisfies ImageKey,
   },
   intro: {
     eyebrow: 'A coastal escape',
-    body: "Three cabins tucked into the countryside just outside Salcombe. A small coastal escape, opening soon, that we can't wait to share.",
+    body: "Two cabins tucked into the countryside just outside Salcombe. A small coastal escape, opening soon, that we can't wait to share.",
     cta: 'Join the early access list',
   },
   features: [
     {
       icon: 'home',
-      title: 'Three cabins',
-      body: 'Three cabins just outside Salcombe, each with its own character. Opening soon.',
+      title: 'Two cabins',
+      body: 'Two cabins just outside Salcombe, each with its own character. Opening soon.',
     },
     {
       icon: 'waves',
