@@ -26,6 +26,7 @@ Environment variables currently set:
 | `RESEND_API_KEY` | Resend key `sea-air-club-website`, sending only (sensitive) | Production |
 | `CRON_SECRET` | set (sensitive) | Production |
 | `SIGNUP_DIGEST_TO` | `oscar@selfhood-studios.com` | Production |
+| `SIGNUP_DIGEST_CC` | Freddie's email | Production |
 | `SIGNUP_DIGEST_FROM` | `Sea Air Club website <signups@selfhood-studios.com>` | Production |
 | `WELCOME_EMAIL_FROM` | `Sea Air Club <hello@seaairclub.co.uk>` (sends once the domain is verified in Resend) | Production |
 | `WELCOME_EMAIL_REPLY_TO` | not set yet: waiting for the Sea Air Club inbox address | |
@@ -69,7 +70,7 @@ Set these in **Settings → Environment Variables**. They match [`.env.example`]
 | `ADMIN_EXPORT_PASSWORD` | a long random password     | optional | Protects `/api/admin/signups.csv` (username `admin`). If empty, the export is switched off.                                                                                       |
 | `SIGNUP_WEBHOOK_URL`    | optional                   |          | Every new sign-up is also POSTed here (Zapier, Make, a ResNexus connector).                                                                                                       |
 | `SIGNUP_WEBHOOK_SECRET` | optional                   |          | Shared secret sent with the webhook.                                                                                                                                              |
-| `RESEND_API_KEY`, `WELCOME_EMAIL_FROM`, `WELCOME_EMAIL_REPLY_TO`, `SIGNUP_DIGEST_FROM`, `SIGNUP_DIGEST_TO`, `CRON_SECRET` | see [SIGNUPS.md §3.4](SIGNUPS.md#34-environment-variables-at-a-glance) | not set | Welcome email and the Mon/Wed/Fri digest. Only production ever sends email. |
+| `RESEND_API_KEY`, `WELCOME_EMAIL_FROM`, `WELCOME_EMAIL_REPLY_TO`, `SIGNUP_DIGEST_FROM`, `SIGNUP_DIGEST_TO`, `SIGNUP_DIGEST_CC`, `CRON_SECRET` | see [SIGNUPS.md §3.4](SIGNUPS.md#34-environment-variables-at-a-glance) | not set | Welcome email and the Mon/Wed/Fri digest. Only production ever sends email. |
 
 Mark the password, webhook secret, `RESEND_API_KEY` and `CRON_SECRET` as **Sensitive**. Redeploy after changing variables: they're read at build and request time, not live.
 

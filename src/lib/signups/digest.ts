@@ -45,6 +45,8 @@ export interface DigestDeps {
   cronSecret: string | undefined;
   sender: EmailSender | null;
   to: string[];
+  /** Copied in (e.g. the client). Replies go to the `to` addresses. */
+  cc?: string[];
   from: string | undefined;
   siteUrl: string;
   logger: Logger;
@@ -103,6 +105,9 @@ export async function handleDigest(request: Request, deps: DigestDeps): Promise<
     await deps.sender.send({
       from: deps.from,
       to: deps.to,
+      cc: deps.cc,
+      // The from address is a no-reply sender, so replies (e.g. from someone on cc) go to the studio.
+      replyTo: deps.to[0],
       ...email,
       attachments: [{ filename, content: Buffer.from(toCsv(fresh), 'utf8').toString('base64') }],
     });

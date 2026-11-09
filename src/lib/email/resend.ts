@@ -12,6 +12,7 @@ export interface EmailAttachment {
 export interface EmailMessage {
   from: string;
   to: string | string[];
+  cc?: string[] | undefined;
   subject: string;
   html: string;
   text: string;
@@ -45,6 +46,7 @@ export function createResendSender({
         body: JSON.stringify({
           from: message.from,
           to: message.to,
+          ...(message.cc?.length ? { cc: message.cc } : {}),
           subject: message.subject,
           html: message.html,
           text: message.text,

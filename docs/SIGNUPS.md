@@ -112,7 +112,8 @@ Rate-limit rules depend on the Vercel plan, so check what the team's plan includ
 | `WELCOME_EMAIL_FROM` | For the welcome email | e.g. `Sea Air Club <hello@seaairclub.co.uk>`. Unset switches the welcome email off. |
 | `WELCOME_EMAIL_REPLY_TO` | No | Where replies to the welcome email go (the Sea Air Club inbox). When set, the email also says "just reply" to opt out. |
 | `SIGNUP_DIGEST_FROM` | For the digest | e.g. `Sea Air Club website <signups@selfhood-studios.com>`. Must be on a domain verified in Resend. |
-| `SIGNUP_DIGEST_TO` | For the digest | Who gets the digest. Comma-separate several addresses. |
+| `SIGNUP_DIGEST_TO` | For the digest | Who gets the digest. Comma-separate several addresses. Replies to the digest go to the first one. |
+| `SIGNUP_DIGEST_CC` | No | Copied in on the digest (Freddie). Comma-separate several addresses. |
 | `CRON_SECRET` | For the digest | Long random string. Vercel Cron sends it as a bearer token. Unset switches the digest route off (404). Sensitive. |
 
 ### 3.5 Welcome email and the Mon/Wed/Fri digest (Resend)

@@ -9,6 +9,7 @@ import {
   RESEND_API_KEY,
   SIGNUP_DIGEST_FROM,
   SIGNUP_DIGEST_TO,
+  SIGNUP_DIGEST_CC,
   WELCOME_EMAIL_FROM,
   WELCOME_EMAIL_REPLY_TO,
   SIGNUP_STORE,
@@ -33,6 +34,8 @@ export interface SignupEnv {
   digestFrom: string | undefined;
   /** Comma-separated. */
   digestTo: string | undefined;
+  /** Comma-separated. Copied in on the digest. */
+  digestCc: string | undefined;
   cronSecret: string | undefined;
 }
 
@@ -59,6 +62,7 @@ export function readSignupEnv(): SignupEnv {
     welcomeReplyTo: WELCOME_EMAIL_REPLY_TO || undefined,
     digestFrom: SIGNUP_DIGEST_FROM || undefined,
     digestTo: SIGNUP_DIGEST_TO || undefined,
+    digestCc: SIGNUP_DIGEST_CC || undefined,
     cronSecret: CRON_SECRET || undefined,
   };
 }

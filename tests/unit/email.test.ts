@@ -116,12 +116,12 @@ describe('Resend client', () => {
   it('posts the message with the API key and maps replyTo', async () => {
     const fetchMock = vi.fn<typeof fetch>(async () => new Response(JSON.stringify({ id: 'abc' }), { status: 200 }));
     const sender = createResendSender({ apiKey: 're_test', fetch: fetchMock });
-    const result = await sender.send({ from: 'a@x.co', to: GUEST, subject: 's', html: 'h', text: 't', replyTo: 'r@x.co' });
+    const result = await sender.send({ from: 'a@x.co', to: GUEST, cc: ['c@x.co'], subject: 's', html: 'h', text: 't', replyTo: 'r@x.co' });
     expect(result.id).toBe('abc');
     const [url, init] = fetchMock.mock.calls[0]!;
     expect(url).toBe(RESEND_ENDPOINT);
     expect((init!.headers as Record<string, string>).Authorization).toBe('Bearer re_test');
-    expect(JSON.parse(init!.body as string)).toMatchObject({ reply_to: 'r@x.co', to: GUEST });
+    expect(JSON.parse(init!.body as string)).toMatchObject({ reply_to: 'r@x.co', to: GUEST, cc: ['c@x.co'] });
   });
 
   it('throws with the status on failure', async () => {
@@ -226,6 +226,14 @@ describe('digest route', () => {
     expect(csv).toContain(GUEST);
     expect(csv).not.toContain('qa@example.com');
     expect(sent[0]!.attachments![0]!.filename).toBe('sea-air-club-new-signups-2026-11-09.csv');
+    expect(sent[0]!.replyTo).toBe('studio@sac-unit-test.co.uk');
+  });
+
+  it('copies in the cc addresses', async () => {
+    const { call, sent } = await setup({ cc: ['client@sac-unit-test.co.uk'] });
+    await call();
+    expect(sent[0]!.to).toEqual(['studio@sac-unit-test.co.uk']);
+    expect(sent[0]!.cc).toEqual(['client@sac-unit-test.co.uk']);
   });
 
   it('sends nothing when there are no new sign-ups, and supports a dry run', async () => {

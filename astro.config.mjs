@@ -53,6 +53,7 @@ export default defineConfig({
       WELCOME_EMAIL_REPLY_TO: envField.string({ context: 'server', access: 'secret', optional: true }),
       SIGNUP_DIGEST_FROM: envField.string({ context: 'server', access: 'secret', optional: true }),
       SIGNUP_DIGEST_TO: envField.string({ context: 'server', access: 'secret', optional: true }),
+      SIGNUP_DIGEST_CC: envField.string({ context: 'server', access: 'secret', optional: true }),
       // Vercel Cron sends this as a bearer token; the digest route rejects anything else.
       CRON_SECRET: envField.string({ context: 'server', access: 'secret', optional: true }),
     },

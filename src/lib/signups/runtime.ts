@@ -83,6 +83,7 @@ export function digestDeps(): DigestDeps {
     cronSecret: env.cronSecret,
     sender: emailSender(env),
     to: parseRecipients(env.digestTo),
+    cc: parseRecipients(env.digestCc),
     from: env.digestFrom,
     siteUrl: siteUrl(),
     logger: consoleLogger,
